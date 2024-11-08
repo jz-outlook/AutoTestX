@@ -4,13 +4,15 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from appium.webdriver.common.appiumby import AppiumBy
 
+from automation_app.check_action import CheckAction
+
 
 def wait_for_element(driver, by, value, timeout=20):
     """显性等待：等待元素出现在 DOM 中"""
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, value)))
 
 
-class CheckElementsAndActions:
+class CheckElements:
     def check_element(self, driver, params):
         try:
             self.perform_action(driver, params)
@@ -22,8 +24,7 @@ class CheckElementsAndActions:
     def perform_action(self, driver, params):
         element = wait_for_element(driver, params['by'], params['element'], timeout=20)
         assert element is not None, f"元素 {params['element']} 不存在或无法定位"
-        element = driver.find_element(by=AppiumBy.XPATH, value=params['element'])
-        element.click()
+        CheckAction().check_action(driver, params)
 
     def action_sleep(self, params):
         # 获取 sleep 值
