@@ -12,19 +12,9 @@ def wait_for_element(driver, by, value, timeout=20):
 
 class CheckElementsAndActions:
     def check_element(self, driver, params):
-        # task = {'id': 'TC001', 'tasks': 'app', 'Procedure': '同意', 'by': 'xpath', 'Element_value': '//android.widget.TextView[@resource-id="vip.myaitalk.myai:id/aui_dialog_btn_right"]', 'action': 'click'}
-        print(params)
-        print(params)
-        print(params)
-
         try:
-            action = params['action']
-            if action == 'skip':
-                pytest.skip("步骤为跳过步骤，将跳过此用例执行")
-                print('步骤为跳过步骤，将跳过此用例执行')
-            else:
-                self.perform_action(driver, params)
-                self.action_sleep(params)
+            self.perform_action(driver, params)
+            self.action_sleep(params)
         except Exception as e:
             print(f"执行操作时发生异常: {e}")
             raise  # 暂停执行

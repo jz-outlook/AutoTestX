@@ -19,21 +19,35 @@ from utils.read_excel_handler import OperationExcel
 
 
 class Executor:
-    driver_instance = None  # 静态变量，用于保存单例 driver 实例
-    web_driver_instance = None  # 静态变量，用于保存单例的 Web 浏览器 driver 实例
+    driver_instance = None  # 静态变量，用于保存单例 App driver 实例
+    web_driver_instance = None  # 静态变量，用于保存单例的 Web driver 实例
+    _instance = None  # 单例实例
+    _instance_lock = threading.Lock()  # 单例锁，确保多线程环境下的线程安全
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            with cls._instance_lock:
+                if not cls._instance:
+                    cls._instance = super(Executor, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self):
-        self.executor = ThreadPoolExecutor()
-        self.loop = asyncio.get_event_loop()
-        self.app_driver = self.get_app_driver()  # 初始化 app driver
-        self.web_driver = self.get_web_driver()  # 初始化 web driver
-        self.timeout = 300  # 设置 5 分钟超时时间
-        self.last_used = time.time()  # 记录最后一次使用时间
+        if not hasattr(self, 'initialized'):
+            # 初始化只在第一次调用时执行
+            self.executor = ThreadPoolExecutor()
+            self.timeout = 300  # 设置 5 分钟超时时间
+            self.last_used = time.time()  # 记录最后一次使用时间
+            self.last_task_name = None  # 记录上一次的任务名称
+            self.initialized = True  # 防止再次初始化
+
+            # 启动自动关闭线程
+            self.auto_close_thread = threading.Thread(target=self.auto_close)
+            self.auto_close_thread.daemon = True
+            self.auto_close_thread.start()
 
     @classmethod
     def get_app_driver(cls):
         if cls.driver_instance is None:
-            # 设置 Desired Capabilities 使用 UiAutomator2Options
             options = UiAutomator2Options()
             options.platform_name = "Android"
             options.platform_version = "14"
@@ -41,14 +55,12 @@ class Executor:
             options.app_package = "vip.myaitalk.myai"
             options.app_activity = ".ui.SplashActivity"
             options.udid = "192.168.28.237:5555"
-            # options.no_reset = True           # 保持应用状态，不重置
-            # options.full_reset = False        # 禁用完全重置
             options.ensure_webviews_have_pages = True
             options.native_web_screenshot = True
             options.new_command_timeout = 60
             options.auto_grant_permissions = True
 
-            # 使用 options 参数初始化 WebDriver，并设置为单例
+            # 初始化 Appium driver
             cls.driver_instance = webdriver.Remote("http://0.0.0.0:4723/wd/hub", options=options)
             cls.driver_instance.implicitly_wait(10)
         return cls.driver_instance
@@ -56,10 +68,7 @@ class Executor:
     @classmethod
     def get_web_driver(cls):
         if cls.web_driver_instance is None:
-            # 配置 Web 浏览器的 ChromeOptions
             chrome_options = Options()
-            # 去掉无头模式
-            # chrome_options.add_argument("--headless")
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
 
@@ -69,15 +78,26 @@ class Executor:
         return cls.web_driver_instance
 
     async def execute_task(self, task_name, params):
+        # 获取当前事件循环
+        loop = asyncio.get_running_loop()
+
+        # 如果当前任务名称与上一次不同，则延迟 5 秒
+        if self.last_task_name is not None and task_name != self.last_task_name:
+            print(f"任务类型改变，从 '{self.last_task_name}' 变为 '{task_name}'，即将延迟 5 秒...")
+            await asyncio.sleep(5)
+
+        # 更新上一次的任务名称
+        self.last_task_name = task_name
+
         with allure.step(f"执行任务: {task_name}"):
             if task_name == "app":
-                result = await self.loop.run_in_executor(self.executor, self.run_app_automation, self.app_driver,
-                                                         params)
+                driver = self.get_app_driver()
+                result = await loop.run_in_executor(self.executor, self.run_app_automation, driver, params)
             elif task_name == "web":
-                result = await self.loop.run_in_executor(self.executor, self.run_web_automation, self.web_driver,
-                                                         params)
+                driver = self.get_web_driver()
+                result = await loop.run_in_executor(self.executor, self.run_web_automation, driver, params)
             elif task_name == "api":
-                result = await self.loop.run_in_executor(self.executor, self.run_api_automation, params)
+                result = await loop.run_in_executor(self.executor, self.run_api_automation, params)
             else:
                 raise ValueError("Unknown task name")
             return result
@@ -85,19 +105,19 @@ class Executor:
     def run_app_automation(self, driver, params):
         with allure.step("运行 App 自动化任务"):
             allure.attach(str(params), "App自动化参数", allure.attachment_type.JSON)
-            app_automation_test(driver, params)  # 将 driver 传递给下层函数
+            app_automation_test(driver, params)
             return "App Task Completed"
 
     def run_web_automation(self, driver, params):
         with allure.step("运行 Web 自动化任务"):
             allure.attach(str(params), "Web自动化参数", allure.attachment_type.JSON)
-            web_automation_test(driver, params)  # 将 driver 传递给下层函数
+            web_automation_test(driver, params)
             return "Web Task Completed"
 
     def run_api_automation(self, params):
         with allure.step("运行 API 自动化任务"):
             allure.attach(str(params), "API自动化参数", allure.attachment_type.JSON)
-            api_automation_test()  # 无需 driver 参数
+            api_automation_test()
             return "API Task Completed"
 
     def reset_timeout(self):
@@ -126,12 +146,6 @@ class Executor:
 # 使用 atexit 注册退出时的关闭操作
 atexit.register(Executor.close_driver)
 
-# 启动自动关闭线程
-executor_instance = Executor()
-auto_close_thread = threading.Thread(target=executor_instance.auto_close)
-auto_close_thread.daemon = True
-auto_close_thread.start()
-
 # 加载测试任务列表
 data_directory = GetPath().get_data_case_path()
 excel_data = OperationExcel(data_directory).read_excel()
@@ -140,11 +154,16 @@ excel_data = OperationExcel(data_directory).read_excel()
 @pytest.mark.parametrize("task", excel_data, ids=[f"{t['id']}_{t['tasks']}" for t in excel_data])
 @pytest.mark.asyncio
 async def test_main(task):
+    executor = Executor()
+
     # 动态设置测试用例名称
     allure.dynamic.title(f"{task['id']}: {task['tasks']}")
 
-    executor = Executor()
     task_name = task['tasks']
+    action = task['action']
+    if action == 'skip':
+        pytest.skip("步骤为跳过步骤，将跳过此用例执行")
+        print('步骤为跳过步骤，将跳过此用例执行')
     with allure.step(f"开始执行任务 {task['id']}"):
         result = await executor.execute_task(task_name, task)
 
@@ -154,19 +173,3 @@ async def test_main(task):
     if task == excel_data[-1]:
         executor.close_driver()
 
-
-def run_tests():
-    # 设置 Allure 结果目录
-    os.environ["ALLURE_RESULTS_DIR"] = "./allure-results"
-
-    # 运行 pytest 并生成 Allure 结果文件
-    pytest.main(["-s", "test_executor.py", "--alluredir=./allure-results"])
-
-
-if __name__ == "__main__":
-    run_tests()
-
-# """
-# pytest test_executor.py --alluredir=./allure-results
-# /Users/Wework/AutoTestX/allure/bin/allure generate ./allure-results -o ./allure-report --clean
-# """
