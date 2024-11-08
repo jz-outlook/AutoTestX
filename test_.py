@@ -1,5 +1,4 @@
 import asyncio
-import os
 import threading
 import time
 import allure
@@ -14,6 +13,7 @@ from appium.options.android import UiAutomator2Options
 from auto_api.api import api_automation_test
 from automation_app.app_test import app_automation_test
 from automation_web.web import web_automation_test
+from utils.capture_screenshot import capture_screenshot
 from utils.get_path import GetPath
 from utils.read_excel_handler import OperationExcel
 
@@ -84,7 +84,7 @@ class Executor:
         # 如果当前任务名称与上一次不同，则延迟 5 秒
         if self.last_task_name is not None and task_name != self.last_task_name:
             print(f"任务类型改变，从 '{self.last_task_name}' 变为 '{task_name}'，即将延迟 5 秒...")
-            await asyncio.sleep(5)
+            # await asyncio.sleep(5)
 
         # 更新上一次的任务名称
         self.last_task_name = task_name
@@ -106,7 +106,7 @@ class Executor:
         with allure.step("运行 App 自动化任务"):
             allure.attach(str(params), "App自动化参数", allure.attachment_type.JSON)
             app_automation_test(driver, params)
-            return "App Task Completed"
+        return "App Task Completed"
 
     def run_web_automation(self, driver, params):
         with allure.step("运行 Web 自动化任务"):
@@ -157,7 +157,7 @@ async def test_main(task):
     executor = Executor()
 
     # 动态设置测试用例名称
-    allure.dynamic.title(f"{task['id']}: {task['tasks']}")
+    allure.dynamic.title(f"{task['id']}: {task['tasks']}: {task['procedure']}")
 
     task_name = task['tasks']
     action = task['action']
@@ -172,4 +172,3 @@ async def test_main(task):
     # 在最后一个测试用例之后关闭 driver
     if task == excel_data[-1]:
         executor.close_driver()
-
