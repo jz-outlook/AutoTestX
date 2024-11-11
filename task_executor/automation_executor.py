@@ -57,9 +57,9 @@ class Executor:
             options.new_command_timeout = 60
             options.auto_grant_permissions = True
             options.no_reset = False
-
             cls.driver_instance = webdriver.Remote("http://0.0.0.0:4723/wd/hub", options=options)
-            cls.driver_instance.implicitly_wait(10)
+            cls.driver_instance.implicitly_wait(20)
+            time.sleep(10)
         return cls.driver_instance
 
     @classmethod
@@ -72,7 +72,7 @@ class Executor:
             service = Service(ChromeDriverManager().install())
             cls.web_driver_instance = selenium_webdriver.Chrome(service=service, options=chrome_options)
             cls.web_driver_instance.implicitly_wait(30)
-
+            time.sleep(10)
         return cls.web_driver_instance
 
     async def execute_task(self, task_name, params):
