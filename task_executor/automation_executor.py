@@ -1,4 +1,5 @@
 # automation_executor.py
+import os
 import threading
 import time
 import atexit
@@ -68,7 +69,8 @@ class Executor:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            # 使用webdriver-manager管理驱动路径
+            # 使用webdriver-manager管理驱动路径，配置 webdriver-manager 使用国内镜像源
+            os.environ['WDM_MIRROR'] = 'https://registry.npmmirror.com/-/binary/chromedriver'
             service = Service(ChromeDriverManager().install())
             cls.web_driver_instance = selenium_webdriver.Chrome(service=service, options=chrome_options)
             cls.web_driver_instance.implicitly_wait(30)
