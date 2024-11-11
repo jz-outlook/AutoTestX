@@ -71,7 +71,7 @@ class Executor:
             # 使用webdriver-manager管理驱动路径
             service = Service(ChromeDriverManager().install())
             cls.web_driver_instance = selenium_webdriver.Chrome(service=service, options=chrome_options)
-            cls.web_driver_instance.implicitly_wait(10)
+            cls.web_driver_instance.implicitly_wait(30)
 
         return cls.web_driver_instance
 

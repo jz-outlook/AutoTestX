@@ -3,13 +3,13 @@ import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import InvalidSelectorException, NoSuchElementException
-
 from utils.capture_screenshot import capture_screenshot
 
 
 def wait_for_element(driver, by, value, timeout=20):
     """显性等待：等待元素出现在 DOM 中"""
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, value)))
+
 
 def assert_and_capture_screenshot(driver, case, assert_condition, success_msg, failure_msg):
     """
@@ -50,9 +50,9 @@ def check_element_existence(driver, case):
     case_id = case.get('id', 'unknown_case')
 
     if not expected_by or not expected_value:
-        msg = f"用例 {case_id} 缺少必要的定位参数: expected_element_by 或 expected_element_value"
-        allure.attach(msg, "定位参数缺失", allure.attachment_type.TEXT)
+        msg = f"用例 {case_id} 缺少断言必要的定位参数: expected_element_by 或 expected_element_value"
         print(msg)
+        allure.attach(msg, "断言必要的定位参数缺失", allure.attachment_type.TEXT)
         pytest.fail(msg)
 
     try:

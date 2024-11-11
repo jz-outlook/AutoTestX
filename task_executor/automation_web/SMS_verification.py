@@ -3,8 +3,9 @@ import time
 from utils.db_connection import MySQLConnector
 
 
-def sms_verification(locator_by, elements, driver):
+def sms_verification(elements):
     if len(elements) >= 6:
+        time.sleep(10)
         print(f"{len(elements)} == 6位，进行输入验证码操作")
         # 获取数据库中的验证码
         code = None

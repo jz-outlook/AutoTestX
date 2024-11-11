@@ -23,7 +23,7 @@ class AppElementsOperation:
     def element_check_operation(self, driver, params):
         try:
             # 执行操作并进行后续检查
-            element = self.perform_action(driver, params)
+            self.perform_action(driver, params)
             self.action_sleep(params)
             # 验证操作的结果
             # self.verify_action(element, params)
