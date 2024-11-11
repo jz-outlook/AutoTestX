@@ -26,7 +26,12 @@ class OperationExcel:
     def get_row_values(self, row):
         tables = self.data
         row_data = tables.row_values(row)
-        return row_data
+        # 转换浮点数为整数（仅限没有小数部分的数）
+        processed_row = [
+            int(cell) if isinstance(cell, float) and cell.is_integer() else cell
+            for cell in row_data
+        ]
+        return processed_row
 
     # 读取excel文件内容
     def read_excel(self):
@@ -48,3 +53,5 @@ class OperationExcel:
 # service_case_path = "/Users/Wework/AutoTestX/tests/data.xls"
 # api_data = OperationExcel(service_case_path).read_excel()
 # print(api_data)
+
+

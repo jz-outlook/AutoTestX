@@ -3,6 +3,8 @@ import allure
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains  # 可选：用于复杂操作
 
+from task_executor.automation_web.SMS_verification import sms_verification
+
 
 class WebAutomation:
     def __init__(self, driver):
@@ -26,10 +28,11 @@ class WebAutomation:
                 send_keys = params.get('send_keys', '')  # 要输入的文本，默认为空
 
                 # 调试信息：输出关键参数
-                print(f"element_by: {element_by}, element_value: {element_value}, action: {action}, send_keys: {send_keys}")
+                print(
+                    f"element_by: {element_by}, element_value: {element_value}, action: {action}, send_keys: {send_keys}")
 
                 # 执行具体的操作
-                self._perform_action(element_by, element_value, action, send_keys)
+                self._perform_action(params, element_by, element_value, action, send_keys)
 
         return "Web Task Completed"
 
@@ -44,7 +47,7 @@ class WebAutomation:
             allure.attach(f"访问 URL 失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
             print(f"访问 URL 失败: {e}")
 
-    def _perform_action(self, element_by, element_value, action, send_keys=None):
+    def _perform_action(self, params, element_by, element_value, action, send_keys=None):
         """根据指定操作查找元素并执行点击、输入等操作"""
         # 根据不同的定位方式设置 By 对象
         locator_by = {
@@ -71,20 +74,24 @@ class WebAutomation:
             if action == "click":
                 element.click()
                 allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                print("点击操作成功")
+                print(f"{params['procedure']},点击操作成功")
 
             elif action == "send_keys":
                 element.clear()  # 可选：清空输入框
                 element.send_keys(send_keys)
                 allure.attach(f"输入操作成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
-                print(f"输入操作成功: {send_keys}")
+                print(f"{params['procedure']},输入操作成功: {send_keys}")
 
+            elif action == "sms_verification":
+                elements = self.driver.find_elements(locator_by, element_value)
+                sms_verification(locator_by, elements, self.driver)
+                print("输入验证码操作")
             else:
                 allure.attach("未知的操作类型", "操作状态", allure.attachment_type.TEXT)
-                print("未知的操作类型或缺少必要参数")
+                print(f"{params['procedure']},未知的操作类型或缺少必要参数")
                 return "Web Task Incomplete"
 
         except Exception as e:
             allure.attach(f"操作失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
-            print(f"操作失败: {e}")
+            print(f"{params['procedure']},操作失败: {e}")
             return "Web Task Failed"

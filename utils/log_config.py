@@ -75,9 +75,9 @@ def setup_logger(level='INFO'):
 
 
 # 初始化和配置日志器
-logger = setup_logger('INFO')  # 设置初始日志级别为INFO
+# logger = setup_logger('INFO')  # 设置初始日志级别为INFO
 # logger = setup_logger('DEBUG')  # 设置初始日志级别为DEBUG
 
 # 测试日志记录，输出目录在logger/log目录下
-logger.info("This is an informational message with fixed prefix")
+# logger.info("This is an informational message with fixed prefix")
 # logger.debug("This is a debug message with file and line number details")
