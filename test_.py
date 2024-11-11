@@ -33,3 +33,6 @@ async def test_main(task):
     # 在最后一个测试用例之后关闭 driver
     if task == excel_data[-1]:
         executor.close_driver()
+
+
+
