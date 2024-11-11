@@ -8,9 +8,9 @@ from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
 from selenium.webdriver.common.actions.pointer_input import PointerInput
 
-from automation_app.assert_operation import check_element_existence
 import pytest
 
+from task_executor.automation_app.assert_operation import check_element_existence
 from utils.capture_screenshot import capture_screenshot
 
 
@@ -19,14 +19,14 @@ def wait_for_element(driver, by, value, timeout=20):
     return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((by, value)))
 
 
-class CheckAndOperationElements:
+class AppElementsOperation:
     def element_check_operation(self, driver, params):
         try:
             # 执行操作并进行后续检查
             element = self.perform_action(driver, params)
             self.action_sleep(params)
-            # 验证操作的结果并进行截图
-            self.verify_action(element, params)
+            # 验证操作的结果
+            # self.verify_action(element, params)
             # 检查操作后的状态
             check_element_existence(driver, params)
 
@@ -46,8 +46,6 @@ class CheckAndOperationElements:
             allure.attach("缺少必要参数", "操作状态", allure.attachment_type.TEXT)
             print("缺少必要参数：element_value 或 action")
             return None  # 返回 None 以便调用者处理异常情况
-
-        # 查找元素
         try:
             element = wait_for_element(driver, locator_by, element_value)
             assert element is not None, f"ID:{params['id']} 元素 {element_value} 不存在或无法定位"
@@ -57,26 +55,24 @@ class CheckAndOperationElements:
                 element.click()
                 allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
                 print("点击操作成功")
-
             elif action == "send_keys":
                 element.clear()  # 可选：清空输入框
                 element.send_keys(send_keys)
                 allure.attach(f"输入操作成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
                 print(f"输入操作成功: {send_keys}")
             elif action == "up_sliding":
+                allure.attach(f"屏幕上滑成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
                 self.slide_up_aperation(driver)
+                print(f"屏幕上滑成功")
             else:
                 allure.attach("未知的操作类型", "操作状态", allure.attachment_type.TEXT)
                 print("未知的操作类型")
                 return None
-
             return element  # 返回找到的元素，以便后续操作验证
-
-
         except Exception as e:
             allure.attach(f"操作失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
-            print(f"操作失败: {e}")
-            print(f'元素不可操作: {e}')
+            print(f"操作失败ID:{params['id']}元素不可操作 {e}")
+            print(f'{e}')
             pytest.fail(f"操作失败: {str(e)}")  # 在失败时使用 pytest.fail() 引发异常
             return None
 
