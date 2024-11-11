@@ -6,10 +6,11 @@ import asyncio
 import allure
 from concurrent.futures import ThreadPoolExecutor
 from appium import webdriver
+from appium.options.android import UiAutomator2Options
+from selenium.webdriver.chrome.service import Service
 from selenium import webdriver as selenium_webdriver
 from selenium.webdriver.chrome.options import Options
-from appium.options.android import UiAutomator2Options
-
+from webdriver_manager.chrome import ChromeDriverManager
 
 from task_executor.auto_api.api import api_automation_test
 from task_executor.task_operations import app_automation_test, web_automation_test
@@ -57,7 +58,6 @@ class Executor:
             options.auto_grant_permissions = True
             options.no_reset = False
 
-
             cls.driver_instance = webdriver.Remote("http://0.0.0.0:4723/wd/hub", options=options)
             cls.driver_instance.implicitly_wait(10)
         return cls.driver_instance
@@ -68,8 +68,11 @@ class Executor:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            cls.web_driver_instance = selenium_webdriver.Chrome(options=chrome_options)
+            # 使用webdriver-manager管理驱动路径
+            service = Service(ChromeDriverManager().install())
+            cls.web_driver_instance = selenium_webdriver.Chrome(service=service, options=chrome_options)
             cls.web_driver_instance.implicitly_wait(10)
+
         return cls.web_driver_instance
 
     async def execute_task(self, task_name, params):
