@@ -2,13 +2,13 @@ import requests
 
 
 
+class ApiAutomation:
+    def api_automation_test(self):
+        url = "https://api-test-ws.myaitalk.vip/lesson/lastAsset.php"
 
-def api_automation_test():
-    url = "https://api-test-ws.myaitalk.vip/lesson/lastAsset.php"
+        payload = {}
+        headers = {}
 
-    payload = {}
-    headers = {}
+        response = requests.request("GET", url, headers=headers, data=payload)
 
-    response = requests.request("GET", url, headers=headers, data=payload)
-
-    print(response.text)
+        print(response.text)

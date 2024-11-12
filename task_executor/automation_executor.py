@@ -5,22 +5,22 @@ import os
 import shutil
 import allure
 from appium import webdriver
-from task_executor.auto_api.api import api_automation_test
-from task_executor.task_operations import app_automation_test, web_automation_test
+from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from selenium import webdriver  # 确保使用 selenium 的 webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdrivermanager_cn import ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
+from webdrivermanager_cn import \
+    ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
 
 
 class Executor:
     driver_instance = None
     web_driver_instance = None
-    web_driver_path = os.path.join(os.path.dirname(__file__), "chromedriver")  # 指定项目根目录下的驱动路径
+    web_driver_path = os.path.join(os.path.dirname(__file__), "automation_web", "chromedriver")  # 指定项目根目录下的驱动路径
     _instance = None
     _instance_lock = threading.Lock()
 
@@ -53,7 +53,7 @@ class Executor:
             options.device_name = "49MRGIFUYH6XQKQS"
             options.app_package = "vip.myaitalk.myai"
             options.app_activity = ".ui.SplashActivity"
-            options.udid = "192.168.28.237:5555"
+            # options.udid = "192.168.28.237:5555"
             options.ensure_webviews_have_pages = True
             options.native_web_screenshot = True
             options.new_command_timeout = 60

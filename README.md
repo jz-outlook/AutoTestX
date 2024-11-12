@@ -65,4 +65,14 @@ my_automation_project/
 ### `README.md` - 项目说明文档
 项目的简要描述、功能、安装步骤、使用方法等。
 
+执行命令
+```bash
+pytest test_.py --alluredir=./allure-results 
+ /Users/Wework/AutoTestX/allure/bin/allure generate ./allure-results -o ./allure-report --clean
+```
+
+
+
+碰到webdriver手动删除之后不能重新运行的问题，需要执行以下命令，删除目录即可
+![img.png](img.png)
 
