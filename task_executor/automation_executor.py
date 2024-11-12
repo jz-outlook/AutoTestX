@@ -5,22 +5,22 @@ import os
 import shutil
 import allure
 from appium import webdriver
-from task_executor.auto_api.api import api_automation_test
-from task_executor.task_operations import app_automation_test, web_automation_test
+from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from selenium import webdriver  # 确保使用 selenium 的 webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdrivermanager_cn import ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器
+from webdrivermanager_cn import \
+    ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
 
 
 class Executor:
     driver_instance = None
     web_driver_instance = None
-    web_driver_path = os.path.join(os.path.dirname(__file__), "chromedriver")  # 指定项目根目录下的驱动路径
+    web_driver_path = os.path.join(os.path.dirname(__file__), "automation_web", "chromedriver")  # 指定项目根目录下的驱动路径
     _instance = None
     _instance_lock = threading.Lock()
 
@@ -53,7 +53,7 @@ class Executor:
             options.device_name = "49MRGIFUYH6XQKQS"
             options.app_package = "vip.myaitalk.myai"
             options.app_activity = ".ui.SplashActivity"
-            options.udid = "192.168.28.237:5555"
+            # options.udid = "192.168.28.237:5555"
             options.ensure_webviews_have_pages = True
             options.native_web_screenshot = True
             options.new_command_timeout = 60
@@ -71,11 +71,12 @@ class Executor:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("headless")
+            # chrome_options.add_argument("headless")
             # 检查项目根目录下是否已存在指定路径的驱动
             if not os.path.exists(cls.web_driver_path):
                 print(f"[INFO] ChromeDriver 不存在，开始下载到: {cls.web_driver_path}")
                 # 使用 webdrivermanager-cn 的阿里云镜像下载 ChromeDriver
+                # https://pypi.org/project/webdrivermanager-cn/
                 downloaded_path = ChromeDriverManagerAliMirror().install()
                 print(f"[INFO] 下载完成，下载路径为: {downloaded_path}")
                 # 将下载的驱动文件移动到项目根目录，并命名为 'chromedriver'
@@ -129,7 +130,7 @@ class Executor:
     def run_api_automation(self, params):
         with allure.step("运行 API 自动化任务"):
             allure.attach(str(params), "API自动化参数", allure.attachment_type.JSON)
-            api_automation_test()
+            api_automation_test(params)
             return "API Task Completed"
 
     def reset_timeout(self):
@@ -149,8 +150,10 @@ class Executor:
             cls.driver_instance.quit()
             cls.driver_instance = None
         if cls.web_driver_instance:
+            time.sleep(10)
             cls.web_driver_instance.quit()
             cls.web_driver_instance = None
+
 
 
 # 使用 atexit 注册退出时的关闭操作

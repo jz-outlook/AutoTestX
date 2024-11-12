@@ -1,6 +1,5 @@
 import pymysql
 from utils.config import load_config
-from utils.log_config import get_main_path
 
 config_data = load_config('/Users/Wework/AutoTestX/config/config.ini', 'Mysql')
 host = config_data.get('host')
