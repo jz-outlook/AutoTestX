@@ -4,8 +4,9 @@ from utils.db_connection import MySQLConnector
 
 
 def sms_verification(elements):
+
     if len(elements) >= 6:
-        time.sleep(10)
+        time.sleep(5)
         print(f"{len(elements)} == 6位，进行输入验证码操作")
         # 获取数据库中的验证码
         code = None

@@ -19,8 +19,8 @@ class WebAutomation:
             allure.attach(str(params), "Web自动化参数", allure.attachment_type.JSON)
 
             # 访问 URL（如果指定了 url 参数）
-            url = params.get('url')
-            if url:
+            url = params.get('by')
+            if url.startswith('http://') or url.startswith('https://'):
                 self._open_url(url)
             else:
                 # 从 params 中提取操作信息
@@ -30,13 +30,14 @@ class WebAutomation:
                 send_keys = params.get('send_keys', '')  # 要输入的文本，默认为空
                 expected_element_by = params.get('expected_element_by', '')  # 断言的类型
                 expected_element_value = params.get('expected_element_value', '')  # 断言的类型
+                index = params.get('index')
 
                 # 调试信息：输出关键参数
                 print(
-                    f"element_by: {element_by}, element_value: {element_value}, action: {action}, send_keys: {send_keys}")
+                    f"element_by: {element_by}, element_value: {element_value}, action: {action}, send_keys: {send_keys}, index:{index}")
 
                 # 执行具体的操作
-                self._perform_action(params, element_by, element_value, action, send_keys)
+                self._perform_action(params, element_by, element_value, action, send_keys, index)
                 # 断言操作
                 if expected_element_by == 'url':
                     self.assert_verification_success(expected_element_value)
@@ -56,7 +57,7 @@ class WebAutomation:
             allure.attach(f"访问 URL 失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
             print(f"访问 URL 失败: {e}")
 
-    def _perform_action(self, params, element_by, element_value, action, send_keys=None):
+    def _perform_action(self, params, element_by, element_value, action, send_keys=None, index=None):
         """根据指定操作查找元素并执行点击、输入等操作"""
         # 根据不同的定位方式设置 By 对象
         locator_by = {
@@ -78,27 +79,30 @@ class WebAutomation:
 
         # 查找元素并执行操作
         try:
-            element = self.driver.find_element(locator_by, element_value)
-
-            if action == "click":
-                element.click()
-                allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                print(f"{params['procedure']},点击操作成功")
-
-            elif action == "send_keys":
-                element.clear()  # 可选：清空输入框
-                element.send_keys(send_keys)
-                allure.attach(f"输入操作成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
-                print(f"{params['procedure']},输入操作成功: {send_keys}")
-
-            elif action == "sms_verification":
+            if index:
                 elements = self.driver.find_elements(locator_by, element_value)
-                sms_verification(elements)
-                print("输入验证码操作")
+                elements[int(index)].click()
             else:
-                allure.attach("未知的操作类型", "操作状态", allure.attachment_type.TEXT)
-                print(f"{params['procedure']},未知的操作类型或缺少必要参数")
-                return "Web Task Incomplete"
+                element = self.driver.find_element(locator_by, element_value)
+                if action == "click":
+                    element.click()
+                    allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
+                    print(f"{params['procedure']},点击操作成功")
+
+                elif action == "send_keys":
+                    element.clear()  # 可选：清空输入框
+                    element.send_keys(send_keys)
+                    allure.attach(f"输入操作成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
+                    print(f"{params['procedure']},输入操作成功: {send_keys}")
+
+                elif action == "sms_verification":
+                    elements = self.driver.find_elements(locator_by, element_value)
+                    sms_verification(elements)
+                    print("输入验证码操作")
+                else:
+                    allure.attach("未知的操作类型", "操作状态", allure.attachment_type.TEXT)
+                    print(f"{params['procedure']},未知的操作类型或缺少必要参数")
+                    return "Web Task Incomplete"
 
         except Exception as e:
             allure.attach(f"操作失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
