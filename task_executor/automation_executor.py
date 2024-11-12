@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 from selenium import webdriver  # 确保使用 selenium 的 webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from webdrivermanager_cn import ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器
+from webdrivermanager_cn import ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
 
 
@@ -76,6 +76,7 @@ class Executor:
             if not os.path.exists(cls.web_driver_path):
                 print(f"[INFO] ChromeDriver 不存在，开始下载到: {cls.web_driver_path}")
                 # 使用 webdrivermanager-cn 的阿里云镜像下载 ChromeDriver
+                # https://pypi.org/project/webdrivermanager-cn/
                 downloaded_path = ChromeDriverManagerAliMirror().install()
                 print(f"[INFO] 下载完成，下载路径为: {downloaded_path}")
                 # 将下载的驱动文件移动到项目根目录，并命名为 'chromedriver'
