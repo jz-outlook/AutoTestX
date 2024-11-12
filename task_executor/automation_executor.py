@@ -1,24 +1,26 @@
 # automation_executor.py
-import threading
-import time
 import atexit
 import asyncio
+import os
+import shutil
 import allure
-from concurrent.futures import ThreadPoolExecutor
 from appium import webdriver
-from appium.options.android import UiAutomator2Options
-from selenium.webdriver.chrome.service import Service
-from selenium import webdriver as selenium_webdriver
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
-
 from task_executor.auto_api.api import api_automation_test
 from task_executor.task_operations import app_automation_test, web_automation_test
+import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
+from selenium import webdriver  # 确保使用 selenium 的 webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdrivermanager_cn import ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器
+from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
 
 
 class Executor:
     driver_instance = None
     web_driver_instance = None
+    web_driver_path = os.path.join(os.path.dirname(__file__), "chromedriver")  # 指定项目根目录下的驱动路径
     _instance = None
     _instance_lock = threading.Lock()
 
@@ -65,15 +67,30 @@ class Executor:
     @classmethod
     def get_web_driver(cls):
         if cls.web_driver_instance is None:
+            print("[INFO] 初始化 Chrome 浏览器选项...")
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("headless")
-            # 使用webdriver-manager管理驱动路径
-            service = Service(ChromeDriverManager().install())
-            cls.web_driver_instance = selenium_webdriver.Chrome(service=service, options=chrome_options)
+            # 检查项目根目录下是否已存在指定路径的驱动
+            if not os.path.exists(cls.web_driver_path):
+                print(f"[INFO] ChromeDriver 不存在，开始下载到: {cls.web_driver_path}")
+                # 使用 webdrivermanager-cn 的阿里云镜像下载 ChromeDriver
+                downloaded_path = ChromeDriverManagerAliMirror().install()
+                print(f"[INFO] 下载完成，下载路径为: {downloaded_path}")
+                # 将下载的驱动文件移动到项目根目录，并命名为 'chromedriver'
+                shutil.move(downloaded_path, cls.web_driver_path)
+                print(f"[INFO] ChromeDriver 已移动到项目根目录: {cls.web_driver_path}")
+            else:
+                print(f"[INFO] ChromeDriver 已存在于路径: {cls.web_driver_path}")
+            # 初始化 Chrome 驱动服务
+            print("[INFO] 启动 Chrome 驱动服务...")
+            service = Service(cls.web_driver_path)
+            cls.web_driver_instance = webdriver.Chrome(service=service, options=chrome_options)
             cls.web_driver_instance.implicitly_wait(30)
-            time.sleep(10)
+            print("[INFO] Chrome 浏览器已成功启动并配置完毕.")
+        else:
+            print("[INFO] Chrome 浏览器实例已存在，返回现有实例.")
         return cls.web_driver_instance
 
     async def execute_task(self, task_name, params):
