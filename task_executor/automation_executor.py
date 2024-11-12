@@ -155,5 +155,6 @@ class Executor:
             cls.web_driver_instance = None
 
 
+
 # 使用 atexit 注册退出时的关闭操作
 atexit.register(Executor.close_driver)
