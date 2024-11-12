@@ -10,7 +10,7 @@ def app_automation_test(driver, params):
 def web_automation_test(driver, params):
     WebAutomation(driver).web_automation_test(params)
 
-def api_automation_test():
-    ApiAutomation().api_automation_test()
+def api_automation_test(params):
+    ApiAutomation().api_automation_test(params)
     pass
 

@@ -71,7 +71,7 @@ class Executor:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("headless")
+            # chrome_options.add_argument("headless")
             # 检查项目根目录下是否已存在指定路径的驱动
             if not os.path.exists(cls.web_driver_path):
                 print(f"[INFO] ChromeDriver 不存在，开始下载到: {cls.web_driver_path}")
@@ -130,7 +130,7 @@ class Executor:
     def run_api_automation(self, params):
         with allure.step("运行 API 自动化任务"):
             allure.attach(str(params), "API自动化参数", allure.attachment_type.JSON)
-            api_automation_test()
+            api_automation_test(params)
             return "API Task Completed"
 
     def reset_timeout(self):
@@ -150,6 +150,7 @@ class Executor:
             cls.driver_instance.quit()
             cls.driver_instance = None
         if cls.web_driver_instance:
+            time.sleep(10)
             cls.web_driver_instance.quit()
             cls.web_driver_instance = None
 
