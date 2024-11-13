@@ -41,4 +41,3 @@ async def test_main(task):
 if __name__ == "__main__":
     initialize()
     test_main()
-    print("Running main project code...")
