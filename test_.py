@@ -4,15 +4,12 @@ import allure
 from task_executor.automation_executor import Executor
 
 from utils.get_path import GetPath
+from utils.initialize import initialize
 from utils.read_excel_handler import OperationExcel
 
 # 加载测试任务列表
 data_directory = GetPath().get_data_case_path()
 excel_data = OperationExcel(data_directory).read_excel()
-
-def initialize():
-    # 在这里添加您的初始化操作
-    print("Initializing project...")
 
 
 
@@ -20,8 +17,8 @@ def initialize():
 @pytest.mark.parametrize("task", excel_data, ids=[f"{t['id']}_{t['tasks']}" for t in excel_data])
 @pytest.mark.asyncio
 async def test_main(task):
+    initialize()
     executor = Executor()
-
     # 动态设置测试用例名称
     allure.dynamic.title(f"{task['id']}: {task['tasks']}: {task['procedure']}")
 

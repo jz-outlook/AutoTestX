@@ -43,6 +43,7 @@ def initialize():
             # 移动删除控制中心
             shutil.move(AutoTestX_path + '/automation_executor.cpython-39-darwin.so', AutoTestX_path + '/task_executor')
             os.remove(AutoTestX_path + '/task_executor/automation_executor.c')
+            os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
             # 移动删除App
             shutil.move(AutoTestX_path + '/automation_app/assert_operation.cpython-39-darwin.so',
                         AutoTestX_path + '/task_executor/automation_app')
@@ -50,6 +51,8 @@ def initialize():
                         AutoTestX_path + '/task_executor/automation_app')
             os.remove(AutoTestX_path + '/task_executor/automation_app/assert_operation.c')
             os.remove(AutoTestX_path + '/task_executor/automation_app/check_elements.c')
+            os.remove(AutoTestX_path + '/task_executor/automation_app/assert_operation.py')
+            os.remove(AutoTestX_path + '/task_executor/automation_app/check_elements.py')
             # 移动删除web
             shutil.move(AutoTestX_path + '/automation_web/SMS_verification.cpython-39-darwin.so',
                         AutoTestX_path + '/task_executor/automation_web')
@@ -57,14 +60,14 @@ def initialize():
                         AutoTestX_path + '/task_executor/automation_web')
             os.remove(AutoTestX_path + '/task_executor/automation_web/SMS_verification.c')
             os.remove(AutoTestX_path + '/task_executor/automation_web/web.c')
+            os.remove(AutoTestX_path + '/automation_web/SMS_verification.py')
+            os.remove(AutoTestX_path + '/task_executor/automation_web/web.py')
             # 删除目录及其内容
             shutil.rmtree(AutoTestX_path + '/automation_app')
             shutil.rmtree(AutoTestX_path + '/automation_web')
             shutil.rmtree(AutoTestX_path + '/auto_api')
+            os.remove(AutoTestX_path + '/setup.py')
         except subprocess.CalledProcessError as e:
             print(f"Error occurred while executing command: {e}")
     else:
         print(f"{setup_file} does not exist. Please ensure setup file is present.")
-# 调用初始化函数
-initialize()
-print(directories_to_delete)
