@@ -18,7 +18,7 @@ def initialize():
         try:
             # 执行构建命令
             result = subprocess.run(
-                ["python", setup_file, "build_ext", "--inplace"],
+                ["python3", setup_file, "build_ext", "--inplace"],
                 capture_output=True,
                 text=True
             )
