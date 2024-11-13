@@ -13,11 +13,7 @@ setup(
     name="AutoTestX",
     ext_modules=cythonize(
         [
-            "task_executor/automation_executor.py",
-            "task_executor/automation_web/SMS_verification.py",
-            "task_executor/automation_web/web.py",
-            "task_executor/automation_app/check_elements.py",
-            "task_executor/automation_app/assert_operation.py"
+            "task_executor/automation_executor.py"
         ],
         compiler_directives={'language_level': "3"}
     ),
