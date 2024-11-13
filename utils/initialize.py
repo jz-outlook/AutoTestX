@@ -7,67 +7,39 @@ from utils.get_path import GetPath
 
 AutoTestX_path = GetPath().get_parent_directory()
 
-directories_to_delete = []
-files_to_delete = [
-    '/Users/Wework/AutoTestX/task_executor/automation_executor.c',
-    '/Users/Wework/AutoTestX/task_executor/automation_app/assert_operation.c',
-    '/Users/Wework/AutoTestX/task_executor/automation_app/check_elements.c',
-]
-
 
 def initialize():
-    print("Initializing project...")
+    print("正在初始化项目...")
     setup_file = AutoTestX_path + "/setup.py"
     if os.path.exists(setup_file):
-        print(f"{setup_file} exists. Running build command...")
-        # 需要创建的目录列表
-        directories = ["auto_api", "automation_app", "automation_web"]
-        # 检查并创建目录
-        for dir_name in directories:
-            if not os.path.exists(AutoTestX_path + "/" + dir_name):
-                print(f"Creating directory: {AutoTestX_path + '/' + dir_name}")
-                os.makedirs(AutoTestX_path + "/" + dir_name)  # 创建目录
-                directories_to_delete.append(AutoTestX_path + "/" + dir_name)
-            else:
-                print(f"Directory {AutoTestX_path + '/' + dir_name} already exists.")
-
-        print('执行下一步操作')
-        print("python", setup_file, "build_ext", "--inplace")
-
+        print(f"{setup_file} 存在。正在运行构建命令...")
         # 更改工作目录
         os.chdir(AutoTestX_path)
         try:
-            subprocess.run(["python", setup_file, "build_ext", "--inplace"], capture_output=True, text=True)
-            print("Command executed successfully.")
+            # 执行构建命令
+            result = subprocess.run(
+                ["python", setup_file, "build_ext", "--inplace"],
+                capture_output=True,
+                text=True
+            )
+            print("命令执行成功。")
             time.sleep(3)
-            # 移动删除控制中心
-            shutil.move(AutoTestX_path + '/automation_executor.cpython-39-darwin.so', AutoTestX_path + '/task_executor')
-            os.remove(AutoTestX_path + '/task_executor/automation_executor.c')
-            os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
-            # 移动删除App
-            shutil.move(AutoTestX_path + '/automation_app/assert_operation.cpython-39-darwin.so',
-                        AutoTestX_path + '/task_executor/automation_app')
-            shutil.move(AutoTestX_path + '/automation_app/check_elements.cpython-39-darwin.so',
-                        AutoTestX_path + '/task_executor/automation_app')
-            os.remove(AutoTestX_path + '/task_executor/automation_app/assert_operation.c')
-            os.remove(AutoTestX_path + '/task_executor/automation_app/check_elements.c')
-            os.remove(AutoTestX_path + '/task_executor/automation_app/assert_operation.py')
-            os.remove(AutoTestX_path + '/task_executor/automation_app/check_elements.py')
-            # 移动删除web
-            shutil.move(AutoTestX_path + '/automation_web/SMS_verification.cpython-39-darwin.so',
-                        AutoTestX_path + '/task_executor/automation_web')
-            shutil.move(AutoTestX_path + '/automation_web/web.cpython-39-darwin.so',
-                        AutoTestX_path + '/task_executor/automation_web')
-            os.remove(AutoTestX_path + '/task_executor/automation_web/SMS_verification.c')
-            os.remove(AutoTestX_path + '/task_executor/automation_web/web.c')
-            os.remove(AutoTestX_path + '/automation_web/SMS_verification.py')
-            os.remove(AutoTestX_path + '/task_executor/automation_web/web.py')
-            # 删除目录及其内容
-            shutil.rmtree(AutoTestX_path + '/automation_app')
-            shutil.rmtree(AutoTestX_path + '/automation_web')
-            shutil.rmtree(AutoTestX_path + '/auto_api')
-            os.remove(AutoTestX_path + '/setup.py')
+
+            # 检查 .so 文件是否存在
+            so_files = [f for f in os.listdir(AutoTestX_path) if f.endswith('.so')]
+            if so_files:
+                print("找到以下 .so 文件:")
+                for so_file in so_files:
+                    print(f"- {so_file}")
+                    shutil.move(AutoTestX_path + '/' + so_file,
+                                AutoTestX_path + '/task_executor')
+                    os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
+                    os.remove(AutoTestX_path + 'setup.py')
+            else:
+                print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:
-            print(f"Error occurred while executing command: {e}")
+            print(f"执行命令时发生错误: {e}")
     else:
-        print(f"{setup_file} does not exist. Please ensure setup file is present.")
+        print(f"{setup_file} 不存在。无需重复初始化环境")
+
+initialize()

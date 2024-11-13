@@ -5,5 +5,5 @@ allure-pytest==2.13.5
 pytest-asyncio==0.24.0
 pymysql==1.1.1
 Cython==3.0.11
-
-
+webdrivermanager_cn==2.0.1
+xlrd==2.0.1
