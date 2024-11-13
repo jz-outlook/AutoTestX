@@ -10,6 +10,12 @@ from utils.read_excel_handler import OperationExcel
 data_directory = GetPath().get_data_case_path()
 excel_data = OperationExcel(data_directory).read_excel()
 
+def initialize():
+    # 在这里添加您的初始化操作
+    print("Initializing project...")
+
+
+
 
 @pytest.mark.parametrize("task", excel_data, ids=[f"{t['id']}_{t['tasks']}" for t in excel_data])
 @pytest.mark.asyncio
@@ -33,3 +39,9 @@ async def test_main(task):
     # 在最后一个测试用例之后关闭 driver
     if task == excel_data[-1]:
         executor.close_driver()
+
+
+if __name__ == "__main__":
+    initialize()
+    test_main()
+    print("Running main project code...")
