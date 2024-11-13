@@ -39,4 +39,3 @@ def initialize():
             print(f"执行命令时发生错误: {e}")
     else:
         print(f"{setup_file} 不存在。请确保 setup 文件存在。")
-initialize()
