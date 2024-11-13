@@ -16,6 +16,8 @@ from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
 
+from utils.initialize import initialize
+
 
 class Executor:
     driver_instance = None
