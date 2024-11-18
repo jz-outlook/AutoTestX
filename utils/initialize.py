@@ -15,7 +15,7 @@ def initialize():
         os.chdir(AutoTestX_path)
         try:
             # 执行构建命令
-            result = subprocess.run(
+            subprocess.run(
                 ["python3", setup_file, "build_ext", "--inplace"],
                 capture_output=True,
                 text=True
