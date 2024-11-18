@@ -32,15 +32,22 @@ class APIParamHandler:
 
     def set_params(self, params):
         """设置默认参数"""
-        method = params.get('by')
-        url = params.get('element')
-        self.check_http_path(url, params)
-        payload = {}
-        headers = {}
+        method = params.get('by')  # 请求方式
+        url = params.get('element')  # 请求地址
+        platform = params.get('index')  # 请求平台（前台还是后台）
+        pre_operation = params.get('send_keys')  # 前置
+        post_operation = params.get('expected_element_by')  # 后置
+        payload = params.get('payload')  # 请求参数
+        headers = {}  # 请求头
+        new_url = self.check_http_path(url, platform, pre_operation)
+        print(f'method：{method}')
         print(f'url：{url}')
-        print(f'url：{payload}')
-        print(f'url：{headers}')
-        return method, url, payload, headers
+        print(f'platform：{platform}')
+        print(f'pre_operation：{pre_operation}')
+        print(f'post_operation：{post_operation}')
+        print(f'payload：{payload}')
+        print(f'headers：{headers}')
+        return method, new_url, platform, pre_operation, post_operation, payload, headers
 
     def apply_defaults(self, params):
         """将默认参数应用到给定参数字典中"""
@@ -50,16 +57,41 @@ class APIParamHandler:
         """将参数字典返回为标准字典"""
         return dict(params)
 
-    def check_http_path(self, path, params):
-        if params.get('tasks') == 'app':
+    def check_http_path(self, path, platform, pre_operation):
+        if path:
             url = path if path.startswith("http") else self.app_url + path
         else:
             url = path if path.startswith("http") else self.console_url + path
         # 检查 URL 中是否包含 {{}}
         if re.search(r'{{.*?}}', url):
             print(f"url需要进行前置操作，替换url: {url}")
-            url = self.replace_url(params, url)
+            url = self.replace_url(url, platform, pre_operation)
             print(f"替换之后的url: {url}")
         else:
             return url  # 如果没有发现 {{}}，则返回原始 URL
         return url
+
+    # def replace_url(self, url, platform, pre_operation):
+    #     # 确定加载哪个配置
+    #     config_section = 'App' if platform == 'App' else 'console'
+    #     platform_data = load_config(get_project_root() + '/config/config.ini', config_section)
+    #     print(platform_data)
+    #     print(pre_operation)
+    #     new_url = url
+    #
+    #     for key in pre_operation.split(','):
+    #         key = key.strip()  # 去掉多余的空格
+    #         # 获取替换数据
+    #         replace_data = platform_data.get(key)
+    #         print(f"替换数据: {replace_data}")
+    #
+    #         if replace_data is None:
+    #             print(f"没有找到替换数据，{key} 为空。")
+    #             continue  # 如果没有找到替换数据，继续下一个变量
+    #
+    #         # 替换 URL 中的占位符
+    #         new_url = re.sub(rf'{{{{{key}}}}}', replace_data, url)  # 使用正则表达式替换
+    #         print(f"替换之后的 URL: {new_url}")
+    #
+    #     return new_url
+

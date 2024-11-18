@@ -81,3 +81,4 @@ def setup_logger(level='INFO'):
 # 测试日志记录，输出目录在logger/log目录下
 # logger.info("This is an informational message with fixed prefix")
 # logger.debug("This is a debug message with file and line number details")
+
