@@ -2,7 +2,7 @@
 import pytest
 import allure
 from task_executor.automation_executor import Executor
-
+from utils.initialize import initialize
 from utils.get_path import GetPath
 from utils.read_excel_handler import OperationExcel
 
@@ -15,6 +15,9 @@ excel_data = OperationExcel(data_directory).read_excel()
 @pytest.mark.asyncio
 async def test_main(task):
     executor = Executor()
+
+    if task == excel_data[0]:
+        initialize()
 
     # 动态设置测试用例名称
     allure.dynamic.title(f"{task['id']}: {task['tasks']}: {task['procedure']}")
