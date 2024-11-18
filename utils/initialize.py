@@ -3,8 +3,6 @@ import shutil
 import subprocess
 import time
 
-from utils.get_path import GetPath
-
 AutoTestX_path = os.getcwd()
 
 
@@ -31,8 +29,9 @@ def initialize():
                 print("找到以下 .so 文件:")
                 for so_file in so_files:
                     print(f"- {so_file}")
-                    shutil.move(AutoTestX_path + '/' + so_file,
-                                AutoTestX_path + '/task_executor')
+                    shutil.move(AutoTestX_path + '/' + so_file, AutoTestX_path + '/task_executor')
+                    os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
+                    os.remove(AutoTestX_path + '/setup.py')
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:

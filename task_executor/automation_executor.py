@@ -14,9 +14,9 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
-
-from webdriver_manager.chrome import ChromeDriverManager
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
+
+from utils.initialize import initialize
 
 
 class Executor:
@@ -66,64 +66,27 @@ class Executor:
             time.sleep(10)
         return cls.driver_instance
 
-    # @classmethod
-    # def get_web_driver(cls):
-    #     if cls.web_driver_instance is None:
-    #         print("[INFO] 初始化 Chrome 浏览器选项...")
-    #         chrome_options = Options()
-    #         chrome_options.add_argument("--no-sandbox")
-    #         chrome_options.add_argument("--disable-dev-shm-usage")
-    #
-    #         # 检查项目根目录下的 chromedriver 是否已存在
-    #         if not os.path.exists(cls.web_driver_path):
-    #             print(f"[INFO] ChromeDriver 不存在，开始下载到: {cls.web_driver_path}")
-    #             # 使用 webdrivermanager-cn 的阿里云镜像下载 ChromeDriver
-    #             downloaded_path = ChromeDriverManagerAliMirror().install()
-    #             print(f"[INFO] 下载完成，下载路径为: {downloaded_path}")
-    #             # 确保下载路径存在并包含驱动文件
-    #             if os.path.exists(downloaded_path):
-    #                 # 如果路径存在，将驱动移动到指定位置
-    #                 shutil.move(downloaded_path, cls.web_driver_path)
-    #                 print(f"[INFO] ChromeDriver 已移动到项目路径: {cls.web_driver_path}")
-    #             else:
-    #                 print("[ERROR] 下载路径不存在，下载可能失败")
-    #                 return None
-    #         else:
-    #             print(f"[INFO] ChromeDriver 已存在于路径: {cls.web_driver_path}")
-    #         # 初始化 Chrome 驱动服务
-    #         print("[INFO] 启动 Chrome 驱动服务...")
-    #         service = Service(cls.web_driver_path)
-    #         cls.web_driver_instance = webdriver.Chrome(service=service, options=chrome_options)
-    #         cls.web_driver_instance.implicitly_wait(30)
-    #         print("[INFO] Chrome 浏览器已成功启动并配置完毕.")
-    #     else:
-    #         print("[INFO] Chrome 浏览器实例已存在，返回现有实例.")
-    #     return cls.web_driver_instance
-    #  暂时使用ChromeDriverManager过度不能动态加载 webdriver 的问题
-
     @classmethod
     def get_web_driver(cls):
-        """获取 Chrome WebDriver 实例，支持动态下载"""
         if cls.web_driver_instance is None:
             print("[INFO] 初始化 Chrome 浏览器选项...")
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            # 检查 ChromeDriver 是否已存在
+            # chrome_options.add_argument("headless")
+            # 检查项目根目录下是否已存在指定路径的驱动
             if not os.path.exists(cls.web_driver_path):
                 print(f"[INFO] ChromeDriver 不存在，开始下载到: {cls.web_driver_path}")
+                # 使用 webdrivermanager-cn 的阿里云镜像下载 ChromeDriver
+                # https://pypi.org/project/webdrivermanager-cn/
                 downloaded_path = ChromeDriverManagerAliMirror().install()
                 print(f"[INFO] 下载完成，下载路径为: {downloaded_path}")
-                # 确保下载路径存在并包含驱动文件
-                if os.path.exists(downloaded_path):
-                    shutil.move(downloaded_path, cls.web_driver_path)
-                    print(f"[INFO] ChromeDriver 已移动到项目路径: {cls.web_driver_path}")
-                else:
-                    print("[ERROR] 下载路径不存在，下载可能失败")
-                    return None
+                # 将下载的驱动文件移动到项目根目录，并命名为 'chromedriver'
+                shutil.move(downloaded_path, cls.web_driver_path)
+                print(f"[INFO] ChromeDriver 已移动到项目根目录: {cls.web_driver_path}")
             else:
                 print(f"[INFO] ChromeDriver 已存在于路径: {cls.web_driver_path}")
-            # 启动 ChromeDriver 服务
+            # 初始化 Chrome 驱动服务
             print("[INFO] 启动 Chrome 驱动服务...")
             service = Service(cls.web_driver_path)
             cls.web_driver_instance = webdriver.Chrome(service=service, options=chrome_options)
@@ -197,7 +160,3 @@ class Executor:
 
 # 使用 atexit 注册退出时的关闭操作
 atexit.register(Executor.close_driver)
-
-
-
-Executor().get_web_driver()
