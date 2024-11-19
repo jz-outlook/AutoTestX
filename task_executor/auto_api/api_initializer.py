@@ -17,18 +17,22 @@ class APIInitializer:
         config_data = load_config(config_path, 'api')
 
         with allure.step("初始化 API Token"):
-            if 'authorization' in config_data:
-                print("Authorization 存在，值为:", config_data['authorization'])
-                headers = {"Authorization": config_data['authorization']}
-                response = requests.request(method=params['by'], url=params['element'], headers=headers)
-                if response.json()['code'] == 200 and response.json()['message'] == 'success':
-                    print('用户登录有效，无需重新登录. "response.json":{}'.format(response.json()))
+            if params['index'] == 'console':
+                if 'console_authorization' in config_data:
+                    print("Authorization 存在，值为:", config_data['console_authorization'])
+                    headers = {"Authorization": config_data['console_authorization']}
+                    response = requests.request(method=params['by'], url=params['element'], headers=headers)
+                    if response.json()['code'] == 200 and response.json()['message'] == 'success':
+                        print('用户登录有效，无需重新登录. "response.json":{}'.format(response.json()))
+                    else:
+                        print('用户登录无效，需重新登录')
+                        self.get_authorization()
                 else:
-                    print('用户登录无效，需重新登录')
+                    print('Authorization 不存在，初始化 Token...')
                     self.get_authorization()
             else:
-                print('Authorization 不存在，初始化 Token...')
-                self.get_authorization()
+                # 暂时留着先，初始化app相关内容
+                pass
 
     def get_authorization(self):
         url = "https://api-test.myaitalk.vip/admin/login/login.php"
@@ -42,5 +46,4 @@ class APIInitializer:
         }
         response = requests.request("POST", url, headers=headers, data=payload)
         response_json = json.loads(response.text)
-        write_config('api', {'Authorization': 'Bearer' + ' ' + response_json['data']['access_token']})
-
+        write_config('api', {'console_authorization': 'Bearer' + ' ' + response_json['data']['access_token']})

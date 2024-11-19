@@ -85,9 +85,20 @@ class WebAutomation:
             else:
                 element = self.driver.find_element(locator_by, element_value)
                 if action == "click":
-                    element.click()
-                    allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                    print(f"{params['procedure']},点击操作成功")
+                    # 尝试等待元素可点击
+                    try:
+                        WebDriverWait(self.driver, 10).until(
+                            EC.element_to_be_clickable((locator_by, element_value))
+                        )
+                        element.click()  # 正常点击
+                        allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
+                        print(f"{params['procedure']},点击操作成功")
+                    except Exception as e:
+                        print(f"正常点击失败，尝试使用JavaScript点击。错误信息: {e}")
+                        # 如果普通点击失败，用JavaScript点击
+                        self.driver.execute_script("arguments[0].click();", element)
+                        print("arguments[0].click();", element)
+                        allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
 
                 elif action == "send_keys":
                     element.clear()  # 可选：清空输入框
