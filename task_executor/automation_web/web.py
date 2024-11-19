@@ -97,7 +97,7 @@ class WebAutomation:
                         print(f"正常点击失败，尝试使用JavaScript点击。错误信息: {e}")
                         # 如果普通点击失败，用JavaScript点击
                         self.driver.execute_script("arguments[0].click();", element)
-                        print("arguments[0].click();", element)
+                        time.sleep(10)
                         allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
                         raise RuntimeError(f"点击操作失败: {e}")  # 测试git pull
 
