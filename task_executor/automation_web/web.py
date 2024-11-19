@@ -79,42 +79,33 @@ class WebAutomation:
 
         # 查找元素并执行操作
         try:
-            if index is not None:
+            if index:
                 elements = self.driver.find_elements(locator_by, element_value)
                 elements[int(index)].click()
             else:
                 element = self.driver.find_element(locator_by, element_value)
-
                 if action == "click":
-                    retries = 3  # 设置重试次数
-                    for attempt in range(retries):
-                        try:
-                            # 尝试等待元素可点击
-                            WebDriverWait(self.driver, 5).until(
-                                EC.element_to_be_clickable((locator_by, element_value))
-                            )
-                            element.click()  # 正常点击
-                            allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                            print(f"{params['procedure']}, 点击操作成功")
-                            break  # 成功点击，跳出重试循环
-                        except Exception as e:
-                            if attempt < retries - 1:  # 如果不是最后一次重试
-                                print(f"点击失败，尝试第 {attempt + 1} 次使用JavaScript点击。错误信息: {e}")
-                                self.driver.execute_script("arguments[0].click();", element)
-                                print("JavaScript点击执行成功")
-                                allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                                break  # 如果 JavaScript 点击成功，则跳出重试循环
-                            else:
-                                print(f"点击失败，所有重试均失败。错误信息: {e}")
-                                allure.attach(f"点击操作失败, 最终未能点击元素: {str(e)}", "操作状态",
-                                              allure.attachment_type.TEXT)
-                                raise RuntimeError(f"点击操作失败，已重试 {retries} 次仍然失败: {e}")  # 抛出异常
+                    # 尝试等待元素可点击
+                    try:
+                        WebDriverWait(self.driver, 5).until(
+                            EC.element_to_be_clickable((locator_by, element_value))
+                        )
+                        element.click()  # 正常点击
+                        allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
+                        print(f"{params['procedure']},点击操作成功")
+                    except Exception as e:
+                        print(f"正常点击失败，尝试使用JavaScript点击。错误信息: {e}")
+                        # 如果普通点击失败，用JavaScript点击
+                        self.driver.execute_script("arguments[0].click();", element)
+                        print("arguments[0].click();", element)
+                        allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
+                        raise RuntimeError(f"点击操作失败: {e}")  # 测试git pull
 
                 elif action == "send_keys":
                     element.clear()  # 可选：清空输入框
                     element.send_keys(send_keys)
                     allure.attach(f"输入操作成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
-                    print(f"{params['procedure']}, 输入操作成功: {send_keys}")
+                    print(f"{params['procedure']},输入操作成功: {send_keys}")
 
                 elif action == "sms_verification":
                     elements = self.driver.find_elements(locator_by, element_value)
@@ -122,13 +113,13 @@ class WebAutomation:
                     print("输入验证码操作")
                 else:
                     allure.attach("未知的操作类型", "操作状态", allure.attachment_type.TEXT)
-                    print(f"{params['procedure']}, 未知的操作类型或缺少必要参数")
+                    print(f"{params['procedure']},未知的操作类型或缺少必要参数")
                     raise ValueError(f"{params['procedure']}, 未知的操作类型")
 
         except Exception as e:
             allure.attach(f"操作失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
-            print(f"{params['procedure']}, 操作失败: {e}")
-            raise RuntimeError(f"Web Task Failed: {e}")  # 抛出异常，结束流程
+            print(f"{params['procedure']},操作失败: {e}")
+            raise RuntimeError(f"Web Task Failed: {e}")
 
     def assert_verification_success(self, expected_url):
         # 等待页面加载完成，并断言 URL 是否匹配
