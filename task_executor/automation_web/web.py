@@ -75,7 +75,7 @@ class WebAutomation:
         if not element_value or not action:
             allure.attach("缺少必要参数", "操作状态", allure.attachment_type.TEXT)
             print("缺少必要参数：element_value 或 action")
-            return "Web Task Incomplete"
+            raise ValueError("缺少必要参数：element_value 或 action")
 
         # 查找元素并执行操作
         try:
@@ -86,25 +86,24 @@ class WebAutomation:
                 element = self.driver.find_element(locator_by, element_value)
                 if action == "click":
                     # 尝试等待元素可点击
+                    WebDriverWait(self.driver, 10).until(
+                        EC.element_to_be_clickable((locator_by, element_value))
+                    )
                     try:
-                        WebDriverWait(self.driver, 10).until(
-                            EC.element_to_be_clickable((locator_by, element_value))
-                        )
                         element.click()  # 正常点击
                         allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                        print(f"{params['procedure']},点击操作成功")
+                        print(f"{params['procedure']}, 点击操作成功")
                     except Exception as e:
-                        print(f"正常点击失败，尝试使用JavaScript点击。错误信息: {e}")
-                        # 如果普通点击失败，用JavaScript点击
-                        self.driver.execute_script("arguments[0].click();", element)
-                        print("arguments[0].click();", element)
-                        allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
+                        # 如果普通点击失败，直接抛出异常
+                        allure.attach(f"点击操作失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
+                        print(f"{params['procedure']}, 点击操作失败: {e}")
+                        raise RuntimeError(f"点击操作失败: {e}")
 
                 elif action == "send_keys":
                     element.clear()  # 可选：清空输入框
                     element.send_keys(send_keys)
                     allure.attach(f"输入操作成功: {send_keys}", "操作状态", allure.attachment_type.TEXT)
-                    print(f"{params['procedure']},输入操作成功: {send_keys}")
+                    print(f"{params['procedure']}, 输入操作成功: {send_keys}")
 
                 elif action == "sms_verification":
                     elements = self.driver.find_elements(locator_by, element_value)
@@ -112,13 +111,13 @@ class WebAutomation:
                     print("输入验证码操作")
                 else:
                     allure.attach("未知的操作类型", "操作状态", allure.attachment_type.TEXT)
-                    print(f"{params['procedure']},未知的操作类型或缺少必要参数")
-                    return "Web Task Incomplete"
+                    print(f"{params['procedure']}, 未知的操作类型或缺少必要参数")
+                    raise ValueError(f"{params['procedure']}, 未知的操作类型")
 
         except Exception as e:
             allure.attach(f"操作失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
-            print(f"{params['procedure']},操作失败: {e}")
-            return "Web Task Failed"
+            print(f"{params['procedure']}, 操作失败: {e}")
+            raise RuntimeError(f"Web Task Failed: {e}")
 
     def assert_verification_success(self, expected_url):
         # 等待页面加载完成，并断言 URL 是否匹配
