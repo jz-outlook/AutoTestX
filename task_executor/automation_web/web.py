@@ -99,6 +99,7 @@ class WebAutomation:
                         self.driver.execute_script("arguments[0].click();", element)
                         print("arguments[0].click();", element)
                         allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
+                        raise RuntimeError(f"点击操作失败: {e}")
 
                 elif action == "send_keys":
                     element.clear()  # 可选：清空输入框
