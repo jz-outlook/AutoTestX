@@ -1,11 +1,13 @@
 import pymysql
 from utils.config import load_config
+from utils.get_path import GetPath
 
-config_data = load_config('/Users/Wework/AutoTestX/config/config.ini', 'Mysql')
+config_data = load_config(GetPath().get_project_root() + '/config/config.ini', 'Mysql')
 host = config_data.get('host')
 user = config_data.get('user')
 password = config_data.get('password')
 database = config_data.get('database')
+
 
 class MySQLConnector:
     def __init__(self, port=3306):
@@ -79,8 +81,8 @@ class MySQLConnector:
         if self.connection:
             self.connection.close()
 
-
-# 查询示例
+#
+# # 查询示例
 # with MySQLConnector() as db_connector:
 #     # 执行查询
 #     results = db_connector.query("SELECT mobile FROM system_verification_codes ORDER BY code_id DESC LIMIT 1")
