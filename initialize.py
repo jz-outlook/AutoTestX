@@ -38,7 +38,7 @@ def initialize():
                 shutil.move(AutoTestX_path + '/' + filtered_files[0], AutoTestX_path + '/task_executor')
                 os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
                 os.remove(AutoTestX_path + '/setup.py')
-                os.remove(AutoTestX_path + 'initialize.py')
+                os.remove(AutoTestX_path + '/initialize.py')
 
                 # 执行 chrome 命令
                 cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
