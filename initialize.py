@@ -38,7 +38,7 @@ def initialize():
                 shutil.move(AutoTestX_path + '/' + filtered_files[0], AutoTestX_path + '/task_executor')
                 os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
                 os.remove(AutoTestX_path + '/setup.py')
-                os.remove(AutoTestX_path + 'initialize.py')
+                os.remove(AutoTestX_path + '/initialize.py')
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:
