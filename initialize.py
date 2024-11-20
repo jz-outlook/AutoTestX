@@ -4,8 +4,10 @@ import subprocess
 import time
 from selenium import webdriver
 from utils.get_path import GetPath
+from selenium.webdriver.chrome.options import Options
 
 AutoTestX_path = os.getcwd()
+
 
 def initialize():
     print("正在初始化项目...")
@@ -40,13 +42,28 @@ def initialize():
                 os.remove(AutoTestX_path + '/initialize.py')
 
                 # 执行 chrome 命令
-                cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
-                process = subprocess.Popen(cmd, shell=True)
-                process.wait()
-                driver = webdriver.Chrome()
+                # cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
+                # process = subprocess.Popen(cmd, shell=True)
+                # process.wait()
+                # driver = webdriver.Chrome()
+                # driver.get("https://admin-test.myaitalk.vip:6060/#/login")
+                # print("请手动登录...")
+                # time.sleep(60)  # 给足够时间手动登录
+
+                options = Options()
+                # 设置用户数据目录
+                options.add_argument(f"--user-data-dir={GetPath().get_project_root()}/chrome")
+                # 设置远程调试端口
+                options.add_argument("--remote-debugging-port=9222")
+
+                # 使用设置好的选项启动Chrome
+                print('打开浏览器')
+                driver = webdriver.Chrome(options=options)
                 driver.get("https://admin-test.myaitalk.vip:6060/#/login")
+
                 print("请手动登录...")
                 time.sleep(60)  # 给足够时间手动登录
+                driver.close()
 
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
@@ -55,5 +72,11 @@ def initialize():
     else:
         print(f"{setup_file} 不存在。请确保 setup 文件存在。")
 
-
-
+#
+# def initialize():
+#     print("正在初始化项目...")
+#
+#
+#
+#
+# initialize()
