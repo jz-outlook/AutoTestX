@@ -3,10 +3,14 @@ import shutil
 import subprocess
 import time
 
+from selenium.webdriver.common.by import By
+
 from task_executor.automation_executor import Executor
+from task_executor.automation_web.SMS_verification import verification
 from utils.get_path import GetPath
 
 AutoTestX_path = os.getcwd()
+
 
 def initialize():
     print("正在初始化项目...")
@@ -53,8 +57,14 @@ def initialize():
     process = subprocess.Popen(cmd, shell=True)
     process.wait()
     driver = Executor().get_web_driver()
+    driver.implicitly_wait(30)
     driver.get("https://admin-test.myaitalk.vip:6060/#/login")
-    print("请手动登录...")
-    time.sleep(60)  # 给足够时间手动登录
-
-
+    driver.find_element(By.ID, 'phone_number_input').send_keys('19900000001')
+    driver.find_element(By.ID, 'password_input').send_keys('Hy123...')
+    driver.find_element(By.CSS_SELECTOR,
+                        '.arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long').click()
+    elements = driver.find_elements(By.CSS_SELECTOR, '.arco-input.arco-verification-code-input')
+    verification(elements)
+    driver.find_element(By.CSS_SELECTOR,
+                        '.arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long').click()
+    time.sleep(5)  # 给足够时间手动登录
