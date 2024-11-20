@@ -47,6 +47,7 @@ def initialize():
                 driver.get("https://admin-test.myaitalk.vip:6060/#/login")
                 print("请手动登录...")
                 time.sleep(60)  # 给足够时间手动登录
+                driver.close()
 
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
@@ -55,5 +56,19 @@ def initialize():
     else:
         print(f"{setup_file} 不存在。请确保 setup 文件存在。")
 
+
+
+# def initialize():
+#     print("正在初始化项目...")
+#     # 执行 chrome 命令
+#     cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
+#     print('打开浏览器')
+#     process = subprocess.Popen(cmd, shell=True)
+#     process.wait()
+#     driver = webdriver.Chrome()
+#     driver.get("https://admin-test.myaitalk.vip:6060/#/login")
+#
+#     print("请手动登录...")
+#     time.sleep(60)  # 给足够时间手动登录
 
 
