@@ -14,6 +14,10 @@ AutoTestX_path = os.getcwd()
 
 def initialize():
     print("正在初始化项目...")
+    # 执行 chrome 命令
+    cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
+    time.sleep(30)
+
     setup_file = AutoTestX_path + "/setup.py"
     if os.path.exists(setup_file):
         print(f"{setup_file} 存在。正在运行构建命令...")
@@ -43,10 +47,6 @@ def initialize():
                 os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
                 os.remove(AutoTestX_path + '/setup.py')
                 os.remove(AutoTestX_path + '/initialize.py')
-
-                # 执行 chrome 命令
-                cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
-                time.sleep(30)
 
                 # 执行命令
                 process = subprocess.Popen(cmd, shell=True)
