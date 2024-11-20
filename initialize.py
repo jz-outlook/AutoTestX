@@ -64,15 +64,18 @@ def initialize():
                 driver = webdriver.Chrome(options=options)
                 driver.implicitly_wait(30)
                 driver.get("https://admin-test.myaitalk.vip:6060/#/login")
-
+                print('打开 URL ')
                 driver.find_element(By.ID, "phone_number_input").send_keys("19900000001")  # 用户名
                 driver.find_element(By.ID, "password_input").send_keys("Hy123...")  # 密码
+                print('输入用户名密码')
                 driver.find_element(By.CSS_SELECTOR,
                                     ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()  # 点击登录
                 elements = driver.find_elements(By.CSS_SELECTOR, ".arco-input.arco-verification-code-input")  # 输入验证码
+                print('输入验证码')
                 sms_verification(elements)
                 driver.find_element(By.CSS_SELECTOR,
                                     ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()  # 点击验证
+                print('点击验证')
                 time.sleep(10)
                 driver.close()
 
@@ -82,12 +85,3 @@ def initialize():
             print(f"执行命令时发生错误: {e}")
     else:
         print(f"{setup_file} 不存在。请确保 setup 文件存在。")
-
-#
-# def initialize():
-#     print("正在初始化项目...")
-#
-#
-#
-#
-# initialize()
