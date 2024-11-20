@@ -3,8 +3,11 @@ import shutil
 import subprocess
 import time
 from selenium import webdriver
+
+from task_executor.automation_web.SMS_verification import sms_verification
 from utils.get_path import GetPath
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 AutoTestX_path = os.getcwd()
 
@@ -59,10 +62,17 @@ def initialize():
                 # 使用设置好的选项启动Chrome
                 print('打开浏览器')
                 driver = webdriver.Chrome(options=options)
+                driver.implicitly_wait(30)
                 driver.get("https://admin-test.myaitalk.vip:6060/#/login")
 
-                print("请手动登录...")
-                time.sleep(60)  # 给足够时间手动登录
+                driver.find_element(By.ID, "phone_number_input").send_keys("19900000001")
+                driver.find_element(By.ID, "phone_number_input").send_keys("Hy123...")
+                driver.find_element(By.CSS_SELECTOR, ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()
+                driver.find_element(By.CSS_SELECTOR, ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()
+                elements = driver.find_elements(By.CSS_SELECTOR, ".arco-input.arco-verification-code-input")
+                sms_verification(elements)
+                driver.find_element(By.CSS_SELECTOR, ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()
+                time.sleep(10)
                 driver.close()
 
             else:
