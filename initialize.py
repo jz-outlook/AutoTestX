@@ -46,7 +46,7 @@ def initialize():
 
                 # 执行 chrome 命令
                 cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
-                time.sleep(5)
+                time.sleep(30)
 
                 # 执行命令
                 process = subprocess.Popen(cmd, shell=True)
