@@ -5,8 +5,6 @@ import os
 import shutil
 import allure
 from appium import webdriver
-
-from task_executor.auto_api.api_initializer import APIInitializer
 from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test
 import threading
 import time
@@ -17,8 +15,6 @@ from selenium.webdriver.chrome.options import Options
 from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
-
-from utils.get_path import GetPath
 
 
 class Executor:
@@ -42,7 +38,6 @@ class Executor:
             self.last_used = time.time()
             self.last_task_name = None
             self.initialized = True
-            self.api_token_initialized = False  # 初始化标志
 
             # 启动自动关闭线程
             self.auto_close_thread = threading.Thread(target=self.auto_close)
@@ -76,8 +71,8 @@ class Executor:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument("--remote-debugging-port=9222")
-            chrome_options.add_argument(f'--user-data-dir={GetPath().get_project_root() + "/chrome"}')
+            chrome_options.add_argument('--remote-debugging-port=9222')
+            chrome_options.add_argument(f'--user-data-dir=/Users/Wework/AutoTestX/chrome')
             # chrome_options.add_argument("headless")
             # 检查项目根目录下是否已存在指定路径的驱动
             if not os.path.exists(cls.web_driver_path):
@@ -117,11 +112,6 @@ class Executor:
                 driver = self.get_web_driver()
                 result = await loop.run_in_executor(self.executor, self.run_web_automation, driver, params)
             elif task_name == "api":
-                if not self.api_token_initialized:
-                    # 初始化 Token 操作
-                    with allure.step("初始化 Token"):
-                        APIInitializer().initialize_token(params)
-                        self.api_token_initialized = True
                 result = await loop.run_in_executor(self.executor, self.run_api_automation, params)
             else:
                 raise ValueError("Unknown task name")
