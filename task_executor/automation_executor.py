@@ -16,6 +16,8 @@ from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
 
+from utils.get_path import GetPath
+
 
 class Executor:
     driver_instance = None
@@ -72,7 +74,7 @@ class Executor:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument('--remote-debugging-port=9222')
-            chrome_options.add_argument(f'--user-data-dir=/Users/Wework/AutoTestX/chrome')
+            chrome_options.add_argument(f'--user-data-dir={GetPath().get_project_root()}/chrome')
             # chrome_options.add_argument("headless")
             # 检查项目根目录下是否已存在指定路径的驱动
             if not os.path.exists(cls.web_driver_path):
