@@ -2,8 +2,7 @@ import os
 import shutil
 import subprocess
 import time
-
-from task_executor.automation_executor import Executor
+from selenium import webdriver
 from utils.get_path import GetPath
 
 AutoTestX_path = os.getcwd()
@@ -44,7 +43,7 @@ def initialize():
                 cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
                 process = subprocess.Popen(cmd, shell=True)
                 process.wait()
-                driver = Executor().get_web_driver()
+                driver = webdriver.Chrome()
                 driver.get("https://admin-test.myaitalk.vip:6060/#/login")
                 print("请手动登录...")
                 time.sleep(60)  # 给足够时间手动登录
