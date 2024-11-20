@@ -43,28 +43,28 @@ def initialize():
                 os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
                 os.remove(AutoTestX_path + '/setup.py')
                 os.remove(AutoTestX_path + '/initialize.py')
+
+                # 执行 chrome 命令
+                cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
+                time.sleep(5)
+
+                # 执行命令
+                process = subprocess.Popen(cmd, shell=True)
+                process.wait()
+                driver = Executor().get_web_driver()
+                driver.get("https://admin-test.myaitalk.vip:6060/#/login")
+                driver.find_element(By.ID, 'phone_number_input').send_keys('19900000001')
+                driver.find_element(By.ID, 'password_input').send_keys('Hy123...')
+                driver.find_element(By.CSS_SELECTOR,
+                                    '.arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long').click()
+                elements = driver.find_elements(By.CSS_SELECTOR, '.arco-input.arco-verification-code-input')
+                verification(elements)
+                driver.find_element(By.CSS_SELECTOR,
+                                    '.arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long').click()
+                time.sleep(5)  # 给足够时间手动登录
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:
             print(f"执行命令时发生错误: {e}")
     else:
-        print(f"{setup_file} 不存在。请确保 setup 文件存在。")
-
-    # 执行 chrome 命令
-    cmd = f'open -na "Google Chrome" --args --remote-debugging-port=9222 --user-data-dir={GetPath().get_project_root() + "/chrome"}'
-    time.sleep(5)
-
-    # 执行命令
-    process = subprocess.Popen(cmd, shell=True)
-    process.wait()
-    driver = Executor().get_web_driver()
-    driver.get("https://admin-test.myaitalk.vip:6060/#/login")
-    driver.find_element(By.ID, 'phone_number_input').send_keys('19900000001')
-    driver.find_element(By.ID, 'password_input').send_keys('Hy123...')
-    driver.find_element(By.CSS_SELECTOR,
-                        '.arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long').click()
-    elements = driver.find_elements(By.CSS_SELECTOR, '.arco-input.arco-verification-code-input')
-    verification(elements)
-    driver.find_element(By.CSS_SELECTOR,
-                        '.arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long').click()
-    time.sleep(5)  # 给足够时间手动登录
+        print(f"{setup_file} 不存在......")
