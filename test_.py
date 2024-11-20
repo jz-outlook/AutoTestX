@@ -16,8 +16,8 @@ excel_data = OperationExcel(data_directory).read_excel()
 async def test_main(task):
     executor = Executor()
 
-    # if task == excel_data[0]:
-    #     initialize()
+    if task == excel_data[0]:
+        initialize()
 
     # 动态设置测试用例名称
     allure.dynamic.title(f"{task['id']}: {task['tasks']}: {task['procedure']}")
