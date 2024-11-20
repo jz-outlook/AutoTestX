@@ -28,13 +28,17 @@ def initialize():
             # 检查 .so 文件是否存在
             so_files = [f for f in os.listdir(AutoTestX_path) if f.endswith('.so')]
             if so_files:
+                # 列出目录中的所有文件
+                files_in_directory = os.listdir(AutoTestX_path)
+                # 筛选出以 'automation_executor' 开头的 .so 文件
+                filtered_files = [file for file in files_in_directory if
+                                  file.startswith('automation_executor') and file.endswith('.so')]
                 print("找到以下 .so 文件:")
-                for so_file in so_files:
-                    print(f"- {so_file}")
-                    shutil.move(AutoTestX_path + '/' + so_file, AutoTestX_path + '/task_executor')
-                    os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
-                    os.remove(AutoTestX_path + '/setup.py')
-                    os.remove(AutoTestX_path + 'initialize.py')
+                print(filtered_files)
+                shutil.move(AutoTestX_path + '/' + filtered_files[0], AutoTestX_path + '/task_executor')
+                os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
+                os.remove(AutoTestX_path + '/setup.py')
+                os.remove(AutoTestX_path + 'initialize.py')
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:
@@ -51,4 +55,6 @@ def initialize():
     driver = Executor().get_web_driver()
     driver.get("https://admin-test.myaitalk.vip:6060/#/login")
     print("请手动登录...")
-    time.sleep(40)  # 给足够时间手动登录
+    time.sleep(60)  # 给足够时间手动登录
+
+
