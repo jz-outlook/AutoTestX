@@ -62,7 +62,6 @@ def initialize():
                 # 使用设置好的选项启动Chrome
                 print('打开浏览器')
                 driver = webdriver.Chrome(options=options)
-                driver.implicitly_wait(30)
                 driver.get("https://admin-test.myaitalk.vip:6060/#/login")
                 print('打开 URL ')
                 driver.find_element(By.ID, "phone_number_input").send_keys("19900000001")  # 用户名
