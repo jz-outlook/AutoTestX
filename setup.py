@@ -13,7 +13,8 @@ setup(
     name="AutoTestX",
     ext_modules=cythonize(
         [
-            "task_executor/automation_executor.py"
+            "task_executor/automation_executor.py",
+            "initialize.py"
         ],
         compiler_directives={'language_level': "3"}
     ),
