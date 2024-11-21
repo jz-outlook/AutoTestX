@@ -1,16 +1,56 @@
 # 文件名: api_param_manager.py
+import json
+
 from utils.config import load_config
 import re
-
+import requests
+from utils.db_connection import MySQLConnector
 from utils.get_path import GetPath
+
+autotestX = GetPath().get_project_root()
 
 
 class APIParamHandler:
     def __init__(self):
         """初始化API参数处理器，设置默认参数"""
-        config_data = load_config('/Users/Wework/AutoTestX/config/config.ini', 'DEFAULT')
+        config_data = load_config(f'{autotestX}/config/config.ini', 'DEFAULT')
         self.console_url = config_data.get('console_url', '')
         self.app_url = config_data.get('app_url', '')
+
+    def perform_operation(self, params):
+        method, url, platform, files, pre_operation, post_operation, payload, headers = self.set_params(params)
+        new_url = self.check_http_path(platform, url)
+        new_payload = self.is_file_upload_advanced(files, payload)
+        return method, new_url, platform, files, pre_operation, post_operation, new_payload, headers
+
+    def is_file_upload_advanced(self, files, payload):
+        """确定请求是否包含文件上传"""
+        if not files:
+            print("没有提供文件路径，无需上传文件。")
+            new_payload = self.process_payload(payload)
+        else:
+            print(f"files参数 不为空，上传文件类型接口")
+            new_payload = self.file_process_payload(payload)
+        return new_payload
+
+    def contains_sql_operations(self, params):
+        """检查给定查询中是否包含SQL操作关键字，并执行"""
+        if params.get('Menu') == 'sql':
+            sql = params["element"]
+            new_sql = self.replace_sql(sql)
+            if params.get('by') == 'select':
+                print('执行查询操作sql：{}'.format(new_sql))
+                results = MySQLConnector().query(new_sql)
+                print('sql查询结果：{}'.format(results))
+                # post_dependent(case, results)
+            elif params.get('by') == 'delete':
+                print('执行删除操作，sql：{}'.format(new_sql))
+                MySQLConnector().delete(new_sql)
+            else:
+                print('执行sql异常，没有指定方法：method为空')
+        else:
+            print('不是sql步骤，继续正常执行case')
+        pass
 
     def validate_params(self, params):
         """验证给定参数字典的有效性"""
@@ -34,16 +74,17 @@ class APIParamHandler:
 
     def set_params(self, params):
         """设置默认参数"""
-        config = load_config('/Users/Wework/AutoTestX/config/config.ini', 'api')
-        method = params.get('by')  # 请求方式
-        url = params.get('element')  # 请求地址
+        config = load_config(f'{autotestX}/config/config.ini', 'api')
+        method = params.get('by')  # 请求方式 & sql方法
+        url = params.get('element')  # 请求地址 & sql
         platform = params.get('index')  # 请求平台（前台还是后台）
-        pre_operation = params.get('send_keys')  # 前置
-        post_operation = params.get('expected_element_by')  # 后置
-        payload = params.get('payload')  # 请求参数
-        headers = {"Authorization": config.get('console_authorization')}  # 请求头
-        new_url = self.check_http_path(platform, url)
-        return method, new_url, platform, pre_operation, post_operation, payload, headers
+        files = params.get('action')  # 请求平台（前台还是后台）
+        payload = params.get('send_keys')  # 请求参数
+        pre_operation = params.get('expected_element_by')  # 前置
+        post_operation = params.get('expected_element_value')  # 后置
+        headers = {"Authorization": config.get('console_authorization'),
+                   'Content-Type': 'application/json'}  # 请求头
+        return method, url, platform, files, pre_operation, post_operation, payload, headers
 
     def apply_defaults(self, params):
         """将默认参数应用到给定参数字典中"""
@@ -53,7 +94,60 @@ class APIParamHandler:
         """将参数字典返回为标准字典"""
         return dict(params)
 
+    def process_payload(self, payload):
+        """
+        处理传入的 payload，确保其是一个有效的字典，并检查是否为空。
+        """
+        # 判断 payload 是否为空
+        if not payload:  # 检查 None、空字符串、空字典、空列表等
+            print("Payload 为空或无效！")
+            return None
+
+        # 确保 payload 是一个字典
+        if isinstance(payload, str):
+            try:
+                new_payload = json.loads(payload)
+                # 再次检查解码后的结果是否为空
+                if not new_payload:
+                    print("解码后的 payload 为空！")
+                    return None
+            except json.JSONDecodeError as e:
+                print(f"JSON 解码错误: {e}")
+                return None
+        elif isinstance(payload, dict):
+            new_payload = payload
+            # 检查字典是否为空
+            if not new_payload:
+                print("Payload 是一个空字典！")
+                return None
+        else:
+            print("Payload 类型无效！应为字符串或字典。")
+            return None
+
+        return new_payload
+
+    def file_process_payload(self, payload):
+        if payload:
+            try:
+                # 如果传入的payload是字典，保持原样
+                if isinstance(payload, dict):
+                    data = payload
+                    print('传入的payload是字典，保持原样')
+                else:
+                    # 尝试解析JSON字符串
+                    data = json.loads(payload)
+                    print('传入的payload不是字典，尝试解析JSON字符串')
+                # 清理数据
+                cleaned_data = {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
+                return cleaned_data
+            except json.JSONDecodeError as e:
+                print(f"Error decoding JSON: {e}")
+                return {}  # 返回空字典或适当的错误处理
+        else:
+            return {}  # 如果payload为空，返回空字典
+
     def check_http_path(self, platform, path):
+        """检查URL格式是否有效"""
         if platform == 'app':
             url = path if path.startswith("http") else self.app_url + path
         else:
@@ -68,6 +162,7 @@ class APIParamHandler:
         return url
 
     def replace_url(self, url):
+        """替换URL中的 {{占位}}"""
         # 确定加载哪个配置
         config_section = 'api'
         platform_data = load_config(GetPath().get_project_root() + '/config/config.ini', config_section)
@@ -79,3 +174,33 @@ class APIParamHandler:
             if match in platform_data:
                 url = url.replace(placeholder, platform_data[match])
         return url
+
+    def replace_sql(self, sql):
+        """替换sql中的 {{占位}}"""
+        return sql
+
+    def replace_payload(self, cleaned_data):
+        """替换参数中的{{占位}}"""
+        # pattern = re.compile(r'\$\{(\w+)\}')
+        pattern = re.compile(r'\$\{(\w+)\}')
+        context = load_config(autotestX + '/config/config.ini', 'api')
+
+        def get_value_from_context(key):
+            if key in context:
+                return str(context[key])
+            else:
+                raise ValueError(f"缺少占位符的值: {key}")
+
+        resolved_payload = {}
+        for k, v in cleaned_data.items():
+            if isinstance(v, str):
+                match = pattern.search(v)
+                if match:
+                    placeholder = match.group(1)
+                    resolved_value = get_value_from_context(placeholder)
+                    resolved_payload[k] = pattern.sub(resolved_value, v)
+                else:
+                    resolved_payload[k] = v
+            else:
+                resolved_payload[k] = v
+        return resolved_payload

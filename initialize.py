@@ -128,7 +128,3 @@ def login_operation():
 
     time.sleep(10)
     driver.close()
-
-
-
-login_operation()
