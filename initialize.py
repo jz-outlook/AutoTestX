@@ -9,6 +9,9 @@ from task_executor.automation_web.SMS_verification import sms_verification
 from utils.get_path import GetPath
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+import os
+import signal
+import psutil  # 需要安装 psutil: pip install psutil
 
 AutoTestX_path = os.getcwd()
 
@@ -84,6 +87,8 @@ def login_operation():
     options.add_argument(f"--user-data-dir={GetPath().get_project_root()}/chrome")
     # 设置远程调试端口
     options.add_argument("--remote-debugging-port=9222")
+    options.add_argument("--disable-gpu")  # 禁用 GPU 加速
+    options.add_argument("--no-sandbox")  # 无沙盒模式
 
     driver = webdriver.Chrome(options=options)
     driver.get("https://admin-test.myaitalk.vip:6060/#/login")
@@ -129,3 +134,13 @@ def login_operation():
     time.sleep(10)
     driver.close()
 
+
+def kill_process_by_name(name):
+    """通过进程名杀死相关进程"""
+    for proc in psutil.process_iter(['pid', 'name']):
+        if name.lower() in proc.info['name'].lower():
+            try:
+                os.kill(proc.info['pid'], signal.SIGTERM)
+                print(f"已终止进程: {proc.info['name']} (PID: {proc.info['pid']})")
+            except Exception as e:
+                print(f"无法终止进程 {proc.info['name']} (PID: {proc.info['pid']}): {e}")

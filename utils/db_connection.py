@@ -37,7 +37,7 @@ class MySQLConnector:
         self.close()
 
     def query(self, sql, params=None):
-        """执行SQL查询并返回所有结果"""
+        """执行SQL查询并返回结果"""
         if not self.cursor:
             print("Cursor not initialized. Cannot execute query.")
             return []

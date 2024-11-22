@@ -5,7 +5,10 @@ import os
 import shutil
 import allure
 from appium import webdriver
-from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test
+
+from initialize import login_operation
+from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test, \
+    sql_automation_test
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -15,7 +18,7 @@ from selenium.webdriver.chrome.options import Options
 from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
-
+from selenium.common.exceptions import WebDriverException
 from utils.get_path import GetPath
 
 
@@ -25,6 +28,7 @@ class Executor:
     web_driver_path = os.path.join(os.path.dirname(__file__), "automation_web", "chromedriver")  # 指定项目根目录下的驱动路径
     _instance = None
     _instance_lock = threading.Lock()
+
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -40,6 +44,7 @@ class Executor:
             self.last_used = time.time()
             self.last_task_name = None
             self.initialized = True
+            self.MAX_RETRIES = 2  # 最大重试次数
 
             # 启动自动关闭线程
             self.auto_close_thread = threading.Thread(target=self.auto_close)
@@ -71,6 +76,7 @@ class Executor:
         if cls.web_driver_instance is None:
             print("[INFO] 初始化 Chrome 浏览器选项...")
             chrome_options = Options()
+            chrome_options.add_argument("--disable-gpu")  # 禁用 GPU 加速
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument('--remote-debugging-port=9222')
@@ -115,6 +121,8 @@ class Executor:
                 result = await loop.run_in_executor(self.executor, self.run_web_automation, driver, params)
             elif task_name == "api":
                 result = await loop.run_in_executor(self.executor, self.run_api_automation, params)
+            elif task_name == "sql":
+                result = await loop.run_in_executor(self.executor, self.run_sql_automation, params)
             else:
                 raise ValueError("Unknown task name")
             return result
@@ -137,6 +145,12 @@ class Executor:
             api_automation_test(params)
             return "API Task Completed"
 
+    def run_sql_automation(self, params):
+        with allure.step("运行 API 自动化任务"):
+            allure.attach(str(params), "sql自动化参数", allure.attachment_type.JSON)
+            sql_automation_test(params)
+            return "sql Task Completed"
+
     def reset_timeout(self):
         self.last_used = time.time()
 
@@ -157,6 +171,12 @@ class Executor:
             time.sleep(10)
             cls.web_driver_instance.quit()
             cls.web_driver_instance = None
+
+    def close_web_drier(self):
+        if self.web_driver_instance:
+            self.web_driver_instance.quit()
+            self.web_driver_instance = None
+
 
 
 # 使用 atexit 注册退出时的关闭操作
