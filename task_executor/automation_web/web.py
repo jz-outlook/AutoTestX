@@ -48,14 +48,35 @@ class WebAutomation:
 
     def _open_url(self, url):
         """打开指定的 URL 并在 Allure 报告中附加信息"""
+        Target_url = url
+        max_retries = 14  # 最大重试次数
+        retry_count = 0  # 重试次数
         try:
             self.driver.get(url)
             time.sleep(3)
+            # 检查是否跳转到目标 URL
+            jump_url = self.driver.current_url  # 获取当前页面的url
+            if jump_url != url:
+                print(f"当前 URL ({jump_url}) 与目标 URL ({url}) 不一致，需要重新手动登录......")
+                while True:
+                    if retry_count < max_retries:
+                        retry_count += 1
+                        print(f'第{retry_count}次重试')
+                        current = self.driver.current_url
+                        print(f'当前页面url：{current}')
+                        if current != jump_url:
+                            self.driver.get(url)
+                            print(f'重新尝试访问目标地址 {url}')
+                            break
+                        time.sleep(5)
+                    else:
+                        raise RuntimeError(url)
             allure.attach(f"访问 URL: {url}", "URL 访问状态", allure.attachment_type.TEXT)
-            print(f"访问 URL: {url}")
         except Exception as e:
             allure.attach(f"访问 URL 失败: {str(e)}", "操作状态", allure.attachment_type.TEXT)
-            print(f"访问 URL 失败: {e}")
+            print(f"目标地址访问失败: {e}")
+            # 重新抛出异常以确保 Pytest 能捕获
+            raise
 
     def _perform_action(self, params, element_by, element_value, action, send_keys=None, index=None):
         """根据指定操作查找元素并执行点击、输入等操作"""
@@ -94,12 +115,11 @@ class WebAutomation:
                         allure.attach("点击操作成功", "操作状态", allure.attachment_type.TEXT)
                         print(f"{params['procedure']},点击操作成功")
                     except Exception as e:
-                        print(f"正常点击失败，尝试使用JavaScript点击。错误信息: {e}")
+                        print(f"正常点击失败，尝试使用JavaScript方法点击。错误信息: {e}")
                         # 如果普通点击失败，用JavaScript点击
                         self.driver.execute_script("arguments[0].click();", element)
-                        time.sleep(10)
                         allure.attach("使用JavaScript点击操作成功", "操作状态", allure.attachment_type.TEXT)
-                        raise RuntimeError(f"点击操作失败: {e}")  # 测试git pull
+                        print('点击成功')
 
                 elif action == "send_keys":
                     element.clear()  # 可选：清空输入框

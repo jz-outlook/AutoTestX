@@ -33,25 +33,6 @@ class APIParamHandler:
             new_payload = self.file_process_payload(payload)
         return new_payload
 
-    def contains_sql_operations(self, params):
-        """检查给定查询中是否包含SQL操作关键字，并执行"""
-        if params.get('Menu') == 'sql':
-            sql = params["element"]
-            new_sql = self.replace_sql(sql)
-            if params.get('by') == 'select':
-                print('执行查询操作sql：{}'.format(new_sql))
-                results = MySQLConnector().query(new_sql)
-                print('sql查询结果：{}'.format(results))
-                # post_dependent(case, results)
-            elif params.get('by') == 'delete':
-                print('执行删除操作，sql：{}'.format(new_sql))
-                MySQLConnector().delete(new_sql)
-            else:
-                print('执行sql异常，没有指定方法：method为空')
-        else:
-            print('不是sql步骤，继续正常执行case')
-        pass
-
     def validate_params(self, params):
         """验证给定参数字典的有效性"""
         # 实现检查逻辑
@@ -174,10 +155,6 @@ class APIParamHandler:
             if match in platform_data:
                 url = url.replace(placeholder, platform_data[match])
         return url
-
-    def replace_sql(self, sql):
-        """替换sql中的 {{占位}}"""
-        return sql
 
     def replace_payload(self, cleaned_data):
         """替换参数中的{{占位}}"""
