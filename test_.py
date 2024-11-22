@@ -24,7 +24,7 @@ async def test_main(params):
     executor = Executor()
 
     if params == excel_data[0]:
-        # initialize()
+        initialize()
         kill_process_by_name("chromedriver")
         kill_process_by_name("chrome")
 
