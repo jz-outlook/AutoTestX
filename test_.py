@@ -17,10 +17,10 @@ async def test_main(params):
     executor = Executor()
 
     # 初始化内容
-    # if params == excel_data[0]:
-    # initialize()
-    # kill_process_by_name("chromedriver")
-    # kill_process_by_name("chrome")
+    if params == excel_data[0]:
+        initialize()
+        kill_process_by_name("chromedriver")
+        kill_process_by_name("chrome")
 
     # 动态设置测试用例名称
     allure.dynamic.title(f"{params['id']}: {params['tasks']}: {params['procedure']}")
