@@ -11,16 +11,16 @@ data_directory = GetPath().get_data_case_path()
 excel_data = OperationExcel(data_directory).read_excel()
 
 
-
 @pytest.mark.parametrize("params", excel_data, ids=[f"{t['id']}_{t['tasks']}" for t in excel_data])
 @pytest.mark.asyncio
 async def test_main(params):
     executor = Executor()
 
-    if params == excel_data[0]:
-        # initialize()
-        kill_process_by_name("chromedriver")
-        kill_process_by_name("chrome")
+    # 初始化内容
+    # if params == excel_data[0]:
+    # initialize()
+    # kill_process_by_name("chromedriver")
+    # kill_process_by_name("chrome")
 
     # 动态设置测试用例名称
     allure.dynamic.title(f"{params['id']}: {params['tasks']}: {params['procedure']}")

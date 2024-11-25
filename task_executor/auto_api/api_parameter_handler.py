@@ -20,11 +20,33 @@ class APIParamHandler:
     def perform_operation(self, params):
         method, url, platform, files, pre_operation, post_operation, payload, headers = self.set_params(params)
         new_url = self.check_http_path(platform, url)
+        self.request_action(files, method, url, headers, payload)
+        return method, new_url, platform, files, pre_operation, post_operation, headers
+
+    def request_action(self, files, method, url, headers, payload):
         new_payload = self.is_file_upload_advanced(files, payload)
-        return method, new_url, platform, files, pre_operation, post_operation, new_payload, headers
+        if not files:
+            response = requests.request(method=method, url=url, headers=headers, json=new_payload)
+            print(response.text)
+        else:
+            try:
+                files = [
+                    ('upload',
+                     (f'{files}', open(f'{GetPath().get_project_root()+"/upload/"}{files}', 'rb'),
+                      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
+                ]
+                # 发送请求
+                response = requests.request(method=method, url=url, headers=headers, data=new_payload, files=files)
+                # 检查响应
+                if response.status_code == 200:
+                    print("文件上传成功:", response.json())
+                else:
+                    print("文件上传失败:", response.status_code, response.text)
+            except Exception as e:
+                print("发生错误:", str(e))
 
     def is_file_upload_advanced(self, files, payload):
-        """确定请求是否包含文件上传"""
+        # 如果未提供文件
         if not files:
             print("没有提供文件路径，无需上传文件。")
             new_payload = self.process_payload(payload)
@@ -59,12 +81,11 @@ class APIParamHandler:
         method = params.get('by')  # 请求方式 & sql方法
         url = params.get('element')  # 请求地址 & sql
         platform = params.get('index')  # 请求平台（前台还是后台）
-        files = params.get('action')  # 请求平台（前台还是后台）
+        files = params.get('files')  # 上传文件
         payload = params.get('send_keys')  # 请求参数
         pre_operation = params.get('expected_element_by')  # 前置
         post_operation = params.get('expected_element_value')  # 后置
-        headers = {"Authorization": config.get('console_authorization'),
-                   'Content-Type': 'application/json'}  # 请求头
+        headers = {"Authorization": config.get('console_authorization')}  # 请求头
         return method, url, platform, files, pre_operation, post_operation, payload, headers
 
     def apply_defaults(self, params):
@@ -76,36 +97,26 @@ class APIParamHandler:
         return dict(params)
 
     def process_payload(self, payload):
-        """
-        处理传入的 payload，确保其是一个有效的字典，并检查是否为空。
-        """
-        # 判断 payload 是否为空
-        if not payload:  # 检查 None、空字符串、空字典、空列表等
-            print("Payload 为空或无效！")
-            return None
-
-        # 确保 payload 是一个字典
-        if isinstance(payload, str):
+        if payload:
             try:
-                new_payload = json.loads(payload)
-                # 再次检查解码后的结果是否为空
-                if not new_payload:
-                    print("解码后的 payload 为空！")
-                    return None
+                print(f"原始 payload: {payload}")
+                # 如果传入的payload是字典，先转换为JSON字符串
+                if isinstance(payload, dict):
+                    payload = json.dumps(payload)
+                # 尝试解析JSON字符串
+                data = json.loads(payload)
+                print(f"解析后的数据: {data}")
+                # 清理数据: 对于字符串，进行strip()；对于其他类型的数据，保留原样
+                cleaned_data = {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
+                print(f"清理后的数据: {cleaned_data}")
+                # new_payload = check_payload(parameters, cleaned_data)
+                return cleaned_data
             except json.JSONDecodeError as e:
-                print(f"JSON 解码错误: {e}")
-                return None
-        elif isinstance(payload, dict):
-            new_payload = payload
-            # 检查字典是否为空
-            if not new_payload:
-                print("Payload 是一个空字典！")
+                print(f"解码 JSON 时出错: {e}")
                 return None
         else:
-            print("Payload 类型无效！应为字符串或字典。")
-            return None
-
-        return new_payload
+            print("payload 为空，返回空的 JSON")
+            return payload  # 如果payload为空，返回空的JSON字符串
 
     def file_process_payload(self, payload):
         if payload:
