@@ -1,7 +1,7 @@
 # test_main.py
 import pytest
 import allure
-from initialize import kill_process_by_name
+from initialize import initialize, kill_process_by_name
 from task_executor.automation_executor import Executor
 from utils.get_path import GetPath
 from utils.read_excel_handler import OperationExcel
