@@ -12,8 +12,5 @@ class ApiAutomation:
             # 将传入的参数附加到 Allure 报告中
             allure.attach(str(params), "Web自动化参数", allure.attachment_type.JSON)
             method, url, platform, files, pre_operation, post_operation, payload, headers = APIParamHandler().perform_operation(params)
-
-
-            # response = requests.request(method, url, headers=headers, data=)
             response = requests.request(method, url, headers=headers, json=payload)
             print(response.json())

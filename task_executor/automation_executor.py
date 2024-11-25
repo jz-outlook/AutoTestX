@@ -5,8 +5,6 @@ import os
 import shutil
 import allure
 from appium import webdriver
-
-from initialize import login_operation
 from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test, \
     sql_automation_test
 import threading
@@ -18,7 +16,6 @@ from selenium.webdriver.chrome.options import Options
 from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
-from selenium.common.exceptions import WebDriverException
 from utils.get_path import GetPath
 
 
@@ -28,7 +25,6 @@ class Executor:
     web_driver_path = os.path.join(os.path.dirname(__file__), "automation_web", "chromedriver")  # 指定项目根目录下的驱动路径
     _instance = None
     _instance_lock = threading.Lock()
-
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -176,7 +172,6 @@ class Executor:
         if self.web_driver_instance:
             self.web_driver_instance.quit()
             self.web_driver_instance = None
-
 
 
 # 使用 atexit 注册退出时的关闭操作
