@@ -1,7 +1,7 @@
 # test_main.py
 import pytest
 import allure
-from initialize import initialize, kill_process_by_name
+from initialize import kill_process_by_name
 from task_executor.automation_executor import Executor
 from utils.get_path import GetPath
 from utils.read_excel_handler import OperationExcel
@@ -9,12 +9,6 @@ from utils.read_excel_handler import OperationExcel
 # 加载测试任务列表
 data_directory = GetPath().get_data_case_path()
 excel_data = OperationExcel(data_directory).read_excel()
-
-import os
-import signal
-import psutil  # 需要安装 psutil: pip install psutil
-
-
 
 
 

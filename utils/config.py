@@ -51,9 +51,11 @@ def write_config(section, options):
         print(f"写入配置文件失败: {e}")
         return False  # 返回 False 表示写入失败
 
+def get_config(name=None):
+    return load_config("/Users/Wework/AutoTestX/config/config.ini", name)
 
 # 使用示例
-# print(load_config("/Users/Wework/AutoTestX/config/config.ini", "api"))
+# print(load_config("/Users/Wework/AutoTestX/config/config.ini"))
 # write_config('api', {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nzk3LCJleHAiOjE3MzE5MDM0NjB9.DYgXYlTTYP+Y2WKpfcabNlXClaC3Cy/xrzRZlzfgZbw=', 'option2': 'value2'})
 
 

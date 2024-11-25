@@ -5,8 +5,6 @@ import os
 import shutil
 import allure
 from appium import webdriver
-
-from initialize import login_operation
 from task_executor.task_operations import app_automation_test, web_automation_test, api_automation_test, \
     sql_automation_test
 import threading
@@ -18,7 +16,6 @@ from selenium.webdriver.chrome.options import Options
 from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
-from selenium.common.exceptions import WebDriverException
 from utils.get_path import GetPath
 
 
