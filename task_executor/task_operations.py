@@ -15,9 +15,7 @@ def web_automation_test(driver, params):
 
 def api_automation_test(params):
     ApiAutomation().api_automation_test(params)
-    pass
 
 
 def sql_automation_test(params):
     SqlOperation().contains_sql_operations(params)
-    pass

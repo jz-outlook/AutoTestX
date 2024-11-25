@@ -29,7 +29,6 @@ class Executor:
     _instance = None
     _instance_lock = threading.Lock()
 
-
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
             with cls._instance_lock:
@@ -176,7 +175,6 @@ class Executor:
         if self.web_driver_instance:
             self.web_driver_instance.quit()
             self.web_driver_instance = None
-
 
 
 # 使用 atexit 注册退出时的关闭操作

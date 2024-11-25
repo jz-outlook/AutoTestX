@@ -64,7 +64,7 @@ class MySQLConnector:
             self.connection.commit()
             if rows_affected == 0:
                 # 没有行被删除，可能是因为找不到匹配的数据
-                return False, "No rows affected. Data might not exist."
+                return False, "没有行受到影响。数据可能不存在."
             else:
                 # 成功删除
                 return True, f"{rows_affected} rows deleted."
