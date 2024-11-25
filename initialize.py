@@ -57,30 +57,6 @@ def initialize():
         print(f"{setup_file} 不存在。请确保 setup 文件存在。")
 
 
-# def login_operation():
-#     options = Options()
-#     # 设置用户数据目录
-#     options.add_argument(f"--user-data-dir={GetPath().get_project_root()}/chrome")
-#     # 设置远程调试端口
-#     options.add_argument("--remote-debugging-port=9222")
-#     driver = webdriver.Chrome(options=options)
-#     driver.get("https://admin-test.myaitalk.vip:6060/#/login")
-#     print('打开 URL ')
-#     driver.find_element(By.ID, "phone_number_input").send_keys("19900000001")  # 用户名
-#     driver.find_element(By.ID, "password_input").send_keys("Hy123...")  # 密码
-#     print('输入用户名密码')
-#     driver.find_element(By.CSS_SELECTOR,
-#                         ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()  # 点击登录
-#     elements = driver.find_elements(By.CSS_SELECTOR, ".arco-input.arco-verification-code-input")  # 输入验证码
-#     print('输入验证码')
-#     sms_verification(elements)
-#     driver.find_element(By.CSS_SELECTOR,
-#                         ".arco-btn.arco-btn-primary.arco-btn-size-default.arco-btn-shape-square.arco-btn-long").click()  # 点击验证
-#     print('点击验证')
-#     time.sleep(10)
-#     driver.close()
-
-
 def login_operation():
     options = Options()
     # 设置用户数据目录
