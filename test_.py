@@ -1,9 +1,10 @@
 # test_main.py
 import pytest
 import allure
-from initialize import initialize, kill_process_by_name
+from initialize import initialize
 from task_executor.automation_executor import Executor
 from utils.get_path import GetPath
+from utils.kill_precess import kill_process_by_name
 from utils.read_excel_handler import OperationExcel
 
 # 加载测试任务列表
@@ -17,10 +18,10 @@ async def test_main(params):
     executor = Executor()
 
     # 初始化内容
-    # if params == excel_data[0]:
-    #     initialize()
-    #     kill_process_by_name("chromedriver")
-    #     kill_process_by_name("chrome")
+    if params == excel_data[0]:
+        initialize()
+        kill_process_by_name("chromedriver")
+        kill_process_by_name("chrome")
 
     # 动态设置测试用例名称
     allure.dynamic.title(f"{params['id']}: {params['tasks']}: {params['procedure']}")

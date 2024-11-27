@@ -2,7 +2,7 @@ import json
 
 import requests
 import allure
-from task_executor.auto_api.api_parameter_handler import APIParamHandler
+from task_executor.automation_api.api_parameter_handler import APIParamHandler
 
 
 class ApiAutomation:
