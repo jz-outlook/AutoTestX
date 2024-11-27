@@ -23,6 +23,7 @@ def initialize():
         print(f"{setup_file} 存在。正在运行构建命令...")
         # 更改工作目录
         os.chdir(AutoTestX_path)
+        os.mkdir('/Users/Wework/AutoTestX/auto_api')
         try:
             # 执行构建命令
             subprocess.run(
@@ -44,11 +45,16 @@ def initialize():
                 print("找到以下 .so 文件:")
                 print(filtered_files)
                 shutil.move(AutoTestX_path + '/' + filtered_files[0], AutoTestX_path + '/task_executor')
-                os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
-                os.remove(AutoTestX_path + '/setup.py')
-                os.remove(AutoTestX_path + '/initialize.py')
+                shutil.move('/Users/Wework/AutoTestX/auto_api/api_parameter_handler.cpython-39-darwin.so',
+                            AutoTestX_path + '/task_executor/auto_api')
+                # os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
+                # os.remove(AutoTestX_path + '/setup.py')
+                # os.remove(AutoTestX_path + '/initialize.py')
+                os.rmdir('/Users/Wework/AutoTestX/auto_api')  # 删除跟auto_api目录
+                os.remove(
+                    AutoTestX_path + '/task_executor/auto_api/api_parameter_handler.py')  # 删除api_parameter_handler.py文件
                 time.sleep(3)
-                login_operation()
+                # login_operation()
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:

@@ -36,10 +36,6 @@ class WebAutomation:
                 print(
                     f"element_by: {element_by}, element_value: {element_value}, action: {action}, send_keys: {send_keys}, index:{index}")
 
-                if params['sleep']:
-                    time.sleep(int(params['sleep']))
-                else:
-                    time.sleep(1)
                 # 执行具体的操作
                 self._perform_action(params, element_by, element_value, action, send_keys, index)
                 # 断言操作
