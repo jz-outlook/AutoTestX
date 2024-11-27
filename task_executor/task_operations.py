@@ -1,4 +1,4 @@
-from task_executor.auto_api.api import ApiAutomation
+from task_executor.automation_api.api import ApiAutomation
 from task_executor.automation_app.check_elements import AppElementsOperation
 from task_executor.automation_sql.sql_operation import SqlOperation
 from task_executor.automation_web.web import WebAutomation

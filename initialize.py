@@ -23,7 +23,8 @@ def initialize():
         print(f"{setup_file} 存在。正在运行构建命令...")
         # 更改工作目录
         os.chdir(AutoTestX_path)
-        os.mkdir('/Users/Wework/AutoTestX/auto_api')
+        os.mkdir('/Users/Wework/AutoTestX/automation_api')
+        os.mkdir('/Users/Wework/AutoTestX/automation_app')
         try:
             # 执行构建命令
             subprocess.run(
@@ -45,16 +46,21 @@ def initialize():
                 print("找到以下 .so 文件:")
                 print(filtered_files)
                 shutil.move(AutoTestX_path + '/' + filtered_files[0], AutoTestX_path + '/task_executor')
-                shutil.move('/Users/Wework/AutoTestX/auto_api/api_parameter_handler.cpython-39-darwin.so',
-                            AutoTestX_path + '/task_executor/auto_api')
-                os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
-                os.remove(AutoTestX_path + '/setup.py')
-                os.remove(AutoTestX_path + '/initialize.py')
-                os.rmdir('/Users/Wework/AutoTestX/auto_api')  # 删除跟auto_api目录
-                os.remove(
-                    AutoTestX_path + '/task_executor/auto_api/api_parameter_handler.py')  # 删除api_parameter_handler.py文件
+                shutil.move('/Users/Wework/AutoTestX/automation_api/api_parameter_handler.cpython-39-darwin.so',
+                            AutoTestX_path + '/task_executor/automation_api')
+                shutil.move('/Users/Wework/AutoTestX/automation_app/action_perform_operation.cpython-39-darwin.so',
+                            AutoTestX_path + '/task_executor/automation_app')
+                # 删除操作
+                # os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
+                # os.remove(AutoTestX_path + '/setup.py')
+                # os.remove(AutoTestX_path + '/initialize.py')
+                # os.rmdir('/Users/Wework/AutoTestX/automation_api')  # 删除跟auto_api目录
+                # os.remove(
+                #     AutoTestX_path + '/task_executor/automation_api/api_parameter_handler.py')  # 删除api_parameter_handler.py文件
+                # os.rmdir('/Users/Wework/AutoTestX/automation_app')
+                # os.remove(AutoTestX_path + '/task_executor/automation_app/action_perform_operation.py')
                 time.sleep(3)
-                login_operation()
+                # login_operation()
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:
@@ -126,6 +132,3 @@ def kill_process_by_name(name):
                 print(f"已终止进程: {proc.info['name']} (PID: {proc.info['pid']})")
             except Exception as e:
                 print(f"无法终止进程 {proc.info['name']} (PID: {proc.info['pid']}): {e}")
-
-
-initialize()
