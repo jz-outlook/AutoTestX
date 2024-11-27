@@ -78,6 +78,7 @@ def initialize():
 
                 os.rmdir(AutoTestX_path + 'setup.py')
                 os.rmdir(AutoTestX_path + 'initialize.py')
+                os.rmdir(AutoTestX_path + 'task_executor/automation_executor.py')
                 time.sleep(3)
                 login_operation()
             else:
