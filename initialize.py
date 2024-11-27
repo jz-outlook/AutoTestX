@@ -76,9 +76,9 @@ def initialize():
                     file_to_remove=os.path.join(AutoTestX_path, 'task_executor/automation_app/web.py')
                 )
 
-                os.rmdir(AutoTestX_path + '/setup.py')
-                os.rmdir(AutoTestX_path + '/initialize.py')
-                os.rmdir(AutoTestX_path + '/task_executor/automation_executor.py')
+                os.remove(AutoTestX_path + '/setup.py')
+                os.remove(AutoTestX_path + '/initialize.py')
+                os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
                 time.sleep(3)
                 login_operation()
             else:
