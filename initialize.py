@@ -23,8 +23,14 @@ def initialize():
         print(f"{setup_file} 存在。正在运行构建命令...")
         # 更改工作目录
         os.chdir(AutoTestX_path)
-        os.mkdir('/Users/Wework/AutoTestX/automation_api')
-        os.mkdir('/Users/Wework/AutoTestX/automation_app')
+
+        directory_path = os.path.join(AutoTestX_path, 'automation_api')
+        os.makedirs(directory_path, exist_ok=True)
+        directory_path = os.path.join(AutoTestX_path, 'automation_app')
+        os.makedirs(directory_path, exist_ok=True)
+        directory_path = os.path.join(AutoTestX_path, 'automation_web')
+        os.makedirs(directory_path, exist_ok=True)
+
         try:
             # 执行构建命令
             subprocess.run(
@@ -45,22 +51,35 @@ def initialize():
                                   file.startswith('automation_executor') and file.endswith('.so')]
                 print("找到以下 .so 文件:")
                 print(filtered_files)
+
                 shutil.move(AutoTestX_path + '/' + filtered_files[0], AutoTestX_path + '/task_executor')
-                shutil.move('/Users/Wework/AutoTestX/automation_api/api_parameter_handler.cpython-39-darwin.so',
-                            AutoTestX_path + '/task_executor/automation_api')
-                shutil.move('/Users/Wework/AutoTestX/automation_app/action_perform_operation.cpython-39-darwin.so',
-                            AutoTestX_path + '/task_executor/automation_app')
-                # 删除操作
-                # os.remove(AutoTestX_path + '/task_executor/automation_executor.py')
-                # os.remove(AutoTestX_path + '/setup.py')
-                # os.remove(AutoTestX_path + '/initialize.py')
-                # os.rmdir('/Users/Wework/AutoTestX/automation_api')  # 删除跟auto_api目录
-                # os.remove(
-                #     AutoTestX_path + '/task_executor/automation_api/api_parameter_handler.py')  # 删除api_parameter_handler.py文件
-                # os.rmdir('/Users/Wework/AutoTestX/automation_app')
-                # os.remove(AutoTestX_path + '/task_executor/automation_app/action_perform_operation.py')
+
+                # 处理 automation_api
+                handle_directory(
+                    source_path=os.path.join(AutoTestX_path, 'automation_api'),
+                    target_path=os.path.join(AutoTestX_path, 'task_executor/automation_api'),
+                    file_to_remove=os.path.join(AutoTestX_path, 'task_executor/automation_api/api_parameter_handler.py')
+                )
+
+                # 处理 automation_app
+                handle_directory(
+                    source_path=os.path.join(AutoTestX_path, 'automation_app'),
+                    target_path=os.path.join(AutoTestX_path, 'task_executor/automation_app'),
+                    file_to_remove=os.path.join(AutoTestX_path,
+                                                'task_executor/automation_app/action_perform_operation.py')
+                )
+
+                # 处理 automation_web
+                handle_directory(
+                    source_path=os.path.join(AutoTestX_path, 'automation_web'),
+                    target_path=os.path.join(AutoTestX_path, 'task_executor/automation_web'),
+                    file_to_remove=os.path.join(AutoTestX_path, 'task_executor/automation_app/web.py')
+                )
+
+                os.rmdir(AutoTestX_path + 'setup.py')
+                os.rmdir(AutoTestX_path + 'initialize.py')
                 time.sleep(3)
-                # login_operation()
+                login_operation()
             else:
                 print("没有找到 .so 文件。请检查构建配置。")
         except subprocess.CalledProcessError as e:
@@ -123,12 +142,29 @@ def login_operation():
     driver.close()
 
 
-def kill_process_by_name(name):
-    """通过进程名杀死相关进程"""
-    for proc in psutil.process_iter(['pid', 'name']):
-        if name.lower() in proc.info['name'].lower():
-            try:
-                os.kill(proc.info['pid'], signal.SIGTERM)
-                print(f"已终止进程: {proc.info['name']} (PID: {proc.info['pid']})")
-            except Exception as e:
-                print(f"无法终止进程 {proc.info['name']} (PID: {proc.info['pid']}): {e}")
+def handle_directory(source_path, target_path, file_to_remove):
+    # 检查源目录是否存在
+    if not os.path.exists(source_path):
+        print(f"源目录 {source_path} 不存在，跳过处理")
+        return
+
+    # 获取目录中的文件列表
+    files_in_directory = os.listdir(source_path)
+    if not files_in_directory:
+        print(f"目录 {source_path} 中没有文件")
+    else:
+        # 移动第一个文件到目标路径
+        file_to_move = files_in_directory[0]
+        shutil.move(f"{source_path}/{file_to_move}", target_path)
+        print(f"文件 {file_to_move} 已移动到 {target_path}")
+
+    # 删除源目录
+    os.rmdir(source_path)
+    print(f"目录 {source_path} 已删除")
+
+    # 删除指定文件
+    if os.path.exists(file_to_remove):
+        os.remove(file_to_remove)
+        print(f"文件 {file_to_remove} 已删除")
+    else:
+        print(f"文件 {file_to_remove} 不存在，跳过删除")
