@@ -11,6 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 class WebAutomation:
     def __init__(self, driver):
         self.driver = driver
+        self.last_url = None
 
     def web_automation_test(self, params):
         """执行 Web 自动化测试任务"""
@@ -21,7 +22,11 @@ class WebAutomation:
             # 访问 URL（如果指定了 url 参数）
             url = params.get('by')
             if url.startswith('http://') or url.startswith('https://'):
-                self._open_url(url)
+                if url == self.last_url:
+                    print(f"URL {url} 与上次访问相同，刷新页面")
+                    self.driver.refresh()  # 刷新页面
+                else:
+                    self._open_url(url)
             else:
                 # 从 params 中提取操作信息
                 element_by = params.get('by', 'xpath').lower()  # 默认使用 xpath
