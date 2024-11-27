@@ -27,6 +27,7 @@ class WebAutomation:
                     self.driver.refresh()  # 刷新页面
                 else:
                     self._open_url(url)
+                    self.last_url = url
             else:
                 # 从 params 中提取操作信息
                 element_by = params.get('by', 'xpath').lower()  # 默认使用 xpath
