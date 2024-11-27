@@ -14,6 +14,7 @@ setup(
     ext_modules=cythonize(
         [
             "task_executor/automation_executor.py",
+            "task_executor/auto_api/api_parameter_handler.py",
             "initialize.py",
         ],
         compiler_directives={'language_level': "3"}
