@@ -2,11 +2,11 @@
 import pytest
 import allure
 from initialize import initialize, kill_process_by_name
+from task_executor.auto_api.api_initializer import APIInitializer
 from task_executor.automation_executor import Executor
 from utils.get_path import GetPath
 from utils.read_excel_handler import OperationExcel
 
-# 加载测试任务列表
 data_directory = GetPath().get_data_case_path()
 excel_data = OperationExcel(data_directory).read_excel()
 
@@ -18,9 +18,10 @@ async def test_main(params):
 
     # 初始化内容
     if params == excel_data[0]:
-        initialize()
-        kill_process_by_name("chromedriver")
-        kill_process_by_name("chrome")
+    # initialize()
+        APIInitializer().initialize_token()
+    # kill_process_by_name("chromedriver")
+    # kill_process_by_name("chrome")
 
     # 动态设置测试用例名称
     allure.dynamic.title(f"{params['id']}: {params['tasks']}: {params['procedure']}")
@@ -36,6 +37,5 @@ async def test_main(params):
 
     allure.attach(str(result), f"{task_name}任务执行结果", allure.attachment_type.TEXT)
 
-    # 在最后一个测试用例之后关闭 driver
     if params == excel_data[-1]:
         executor.close_driver()

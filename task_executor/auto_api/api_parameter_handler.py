@@ -26,13 +26,17 @@ class APIParamHandler:
     def request_action(self, files, method, url, headers, payload):
         new_payload = self.is_file_upload_advanced(files, payload)
         if not files:
-            response = requests.request(method=method, url=url, headers=headers, json=new_payload)
-            print(response.text)
+            if new_payload:
+                response = requests.request(method=method, url=url, headers=headers, json=new_payload)
+                print(response.text)
+            else:
+                response = requests.request(method=method, url=url, headers=headers)
+                print(response.text)
         else:
             try:
                 files = [
                     ('upload',
-                     (f'{files}', open(f'{GetPath().get_project_root()+"/upload/"}{files}', 'rb'),
+                     (f'{files}', open(f'{GetPath().get_project_root() + "/upload/"}{files}', 'rb'),
                       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
                 ]
                 # 发送请求
@@ -85,7 +89,7 @@ class APIParamHandler:
         payload = params.get('send_keys')  # 请求参数
         pre_operation = params.get('expected_element_by')  # 前置
         post_operation = params.get('expected_element_value')  # 后置
-        headers = {"Authorization": config.get('console_authorization')}  # 请求头
+        headers = {"authorization": config.get('console_authorization')}  # 请求头
         return method, url, platform, files, pre_operation, post_operation, payload, headers
 
     def apply_defaults(self, params):
@@ -109,8 +113,8 @@ class APIParamHandler:
                 # 清理数据: 对于字符串，进行strip()；对于其他类型的数据，保留原样
                 cleaned_data = {k: v.strip() if isinstance(v, str) else v for k, v in data.items()}
                 print(f"清理后的数据: {cleaned_data}")
-                # new_payload = check_payload(parameters, cleaned_data)
-                return cleaned_data
+                new_payload = self.replace_payload(cleaned_data)
+                return new_payload
             except json.JSONDecodeError as e:
                 print(f"解码 JSON 时出错: {e}")
                 return None
