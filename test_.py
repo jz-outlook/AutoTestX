@@ -1,8 +1,10 @@
 # test_main.py
 import pytest
 import allure
+from initialize import initialize
 from task_executor.automation_executor import Executor
 from utils.get_path import GetPath
+from utils.kill_precess import kill_process_by_name
 from utils.read_excel_handler import OperationExcel
 
 # 加载测试任务列表
