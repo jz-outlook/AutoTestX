@@ -16,6 +16,7 @@ from selenium.webdriver.chrome.options import Options
 from webdrivermanager_cn import \
     ChromeDriverManagerAliMirror  # 使用国内镜像的驱动管理器https://pypi.org/project/webdrivermanager-cn/
 from appium.options.android import UiAutomator2Options  # 引入 Appium 的 Android 配置选项
+from utils.config import load_config
 from utils.get_path import GetPath
 
 
@@ -50,12 +51,13 @@ class Executor:
     @classmethod
     def get_app_driver(cls):
         if cls.driver_instance is None:
+            data = load_config(GetPath().get_config_path(), "app")
             options = UiAutomator2Options()
-            options.platform_name = "Android"
-            options.platform_version = "14"
-            options.device_name = "49MRGIFUYH6XQKQS"
-            options.app_package = "vip.myaitalk.myai"
-            options.app_activity = ".ui.SplashActivity"
+            options.platform_name = data.get('platform_name')
+            options.platform_version = data.get('platform_version')
+            options.device_name = data.get('device_name')
+            options.app_package = data.get('app_package')
+            options.app_activity = data.get('app_activity')
             # options.udid = "192.168.28.237:5555"
             options.ensure_webviews_have_pages = True
             options.native_web_screenshot = True

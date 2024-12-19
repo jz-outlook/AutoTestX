@@ -59,11 +59,6 @@ def get_config(name=None):
 # write_config('api', {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Nzk3LCJleHAiOjE3MzE5MDM0NjB9.DYgXYlTTYP+Y2WKpfcabNlXClaC3Cy/xrzRZlzfgZbw=', 'option2': 'value2'})
 
 
-# data = load_config("/Users/Wework/AutoTestX/config/config.ini", "api")
-# if 'authorization' in data:
-#     print("authorization 存在，值为:", data['authorization'])
-#     headers = {"Authorization": data['authorization']}
-#     print(headers)
-# else:
-#     print("authorization 不存在")
-# print("Token 初始化完成")
+data = load_config("/Users/Wework/AutoTestX/config/config.ini", "app")
+print(data)
+print(data.get('platform_name'))
